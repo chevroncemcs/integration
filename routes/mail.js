@@ -9,6 +9,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/send', function(req, res){
+    console.log(req.header("APIKEY"))
     const{to,subject,cc=null,html}=req.body;
     var transporter = nodemailer.createTransport({
         host:"premium123.web-hosting.com",

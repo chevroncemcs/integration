@@ -49,6 +49,12 @@ router.post('/getMonthlyPayrollSchedule',(req,res)=>{
 })
 
 router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
+  if(req.header("APIKEY")!=process.env.APIKEY){
+    res.send({
+      error:true,
+      message:"You are not authorized to access this resource!"
+    })
+  }
   const {empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher}=req.body
   console.log(empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher)
   boolea=[0,1]
@@ -59,6 +65,12 @@ router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
 })
 
 router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
+  if(req.header("APIKEY")!=process.env.APIKEY){
+    res.send({
+      error:true,
+      message:"You are not authorized to access this resource!"
+    })
+  }
   const {empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key}=req.body
   console.log(empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key)
   boolea=[0,1]

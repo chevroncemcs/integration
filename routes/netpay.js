@@ -48,9 +48,19 @@ router.post('/getMonthlyPayrollSchedule',(req,res)=>{
   })
 })
 
-router.post('/checkMemberEligibility',(req,res)=>{
+router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
   const {empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher}=req.body
   console.log(empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher)
+  boolea=[0,1]
+  res.send({
+    error:false,
+    value:boolea[Math.floor(Math.random()*boolea.length)]
+  })
+})
+
+router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
+  const {empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key}=req.body
+  console.log(empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key)
   boolea=[0,1]
   res.send({
     error:false,

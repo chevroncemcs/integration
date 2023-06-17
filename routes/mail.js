@@ -3,13 +3,19 @@ var router = express.Router();
 var nodemailer = require('nodemailer');
 require('dotenv').config();
 
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'CEMCS' });
 });
 
 router.post('/send', function(req, res){
-    console.log(req.header("APIKEY"))
+    if(req.header("APIKEY")!=process.env.APIKEY){
+      res.send({
+        error:true,
+        message:"You are not authorized to access this resource!"
+      })
+    }
     const{to,subject,cc=null,html}=req.body;
     var transporter = nodemailer.createTransport({
         host:"premium123.web-hosting.com",

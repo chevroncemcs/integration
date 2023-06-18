@@ -80,7 +80,7 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
   })
 })
 
-router.post('/canEmployeeGetOneTimeIncrease',(req,res=>{
+router.post('/canEmployeeGetOneTimeIncrease',(req,res)=>{
   if(req.header("APIKEY")!=process.env.APIKEY){
     res.send({
       error:true,
@@ -94,6 +94,6 @@ router.post('/canEmployeeGetOneTimeIncrease',(req,res=>{
     error:false,
     value:boolea[Math.floor(Math.random()*boolea.length)]
   })
-}))
+})
 
 module.exports = router;

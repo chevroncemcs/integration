@@ -81,6 +81,12 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
 })
 
 router.post('/canEmployeeGetOneTimeIncrease',(req,res=>{
+  if(req.header("APIKEY")!=process.env.APIKEY){
+    res.send({
+      error:true,
+      message:"You are not authorized to access this resource!"
+    })
+  }
   const {empno,currentDedution,additionalDeduction,month,year,key}=req.body
   console.log(empno,currentDedution,additionalDeduction,month,year,key)
   boolea=[0,1]

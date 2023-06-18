@@ -80,4 +80,14 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
   })
 })
 
+router.post('/canEmployeeGetOneTimeIncrease',(req,res=>{
+  const {empno,currentDedution,additionalDeduction,month,year,key}=req.body
+  console.log(empno,currentDedution,additionalDeduction,month,year,key)
+  boolea=[0,1]
+  res.send({
+    error:false,
+    value:boolea[Math.floor(Math.random()*boolea.length)]
+  })
+}))
+
 module.exports = router;

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <% include header.ejs %>
+  <body>
+    <img src="/images/cemcs-logo.png" alt="cemcs-logo"  style="float:right;width:70px;"/>
+
+    <div class="container-fluid">
+   
+    </div>
+    <h3>Convert Transposed Format to Flattened format</h3>
+    <form id="bulk-form" method="post" action="/bulkproduct" >
+      <div class="row mb-2 mx-auto">      
+        <div class="form-floating mb-2 px-2 col-8">
+          <input name="csv"  id="csvFile" type="file" class="form-control" accept=".csv" placeholder="name@example.com" required>
+          <label for="floatingInput">CSV File</label>                    
+        </div>      
+      </div>       
+      
+      <div class="container-fluid" id="table-container">
+
+      </div>
+  
+<!--      
+      <div class="d-grid gap-2">
+          <button type="submit" id="subbtn" class="btn btn-success disabled">Convert</button>
+      </div> -->
+      <div class="success-message">
+
+      </div>
+     
+  </form>
+
+  <div class="container-fluid mt-3">
+    <h3> Payroll Flat Format</h3>  
+    <p>When the file is uploaded the flat format will appear here for download</p>
+    <button class="btn btn-primary" onclick="exportToExcel('#flat_table')">Download</button>  
+    <table  id="flat_table" class="table table-striped rounded">
+      <thead>
+        <th>empno</th>
+        <th>empname</th>
+        <th>payroll_code</th>
+        <th>deduct_amt</th>
+        <th>current_status</th>
+        <th>payroll_update_date</th>     
+      </thead>
+      <tbody id="flatBody">
+
+      </tbody>
+    </table>  
+
+  </div>
+
+
+  <div class="container-fluid mt-3">
+    <h3> Payroll Transposed Format</h3>  
+    <p>Use this template to form your payroll deduction upload file</p>
+    <button class="btn btn-primary" onclick="exportToExcel('#template_table')" >Download</button>  
+    <table  id="template_table" class="table table-striped rounded">
+        <thead class="remove">
+            <th>empno</th>
+            <th>employeename</th>            
+            <th>Savings</th>
+            <th>S/Term Loan</th>
+            <th>L/Term Loan</th>
+            <th>Car Loan</th>
+            <th>Appliances Loan</th>
+            <th>Generator Loan</th>
+            <th>IBTC EQ</th>
+            <th>CU Mortage</th>
+            <th>L. With Dep</th>
+            <th>Phone Loan</th>
+        </thead>
+        <tbody class="remove">
+            <tr>
+                <td> </td>
+                <td> </td>
+                <td>6020</td>
+                <td>6060</td>
+                <td>6070</td>
+                <td>6080</td>
+                <td>6090</td>
+                <td>60</td>
+                <td>6</td>
+                <td></td>
+                <td>6050</td>
+                <td></td>
+            </tr>
+            <tr>
+              <td> </td>
+              <td> </td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            
+        </tbody>
+    </table>
+  </div>
+
+
+
+
+  </body>
+  <% include footer.ejs %>
+  <script src="/javascripts/translate.js"></script>
+</html>

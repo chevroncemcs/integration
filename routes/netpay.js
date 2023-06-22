@@ -39,7 +39,7 @@ router.post('/getMonthlyPayrollSchedule',(req,res)=>{
       empName:"John Doe",
       dbaCode:payrollCode[Math.floor(Math.random()*payrollCode.length)],
       deduction:Math.round(Math.random() * 100000,2),
-      voucher:"cemcs"
+      voucher:"Y"
     })
   }
   res.send({

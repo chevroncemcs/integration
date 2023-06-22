@@ -11,6 +11,7 @@ var usersRouter = require('./routes/users');
 var mailRouter=require('./routes/mail');
 var netpayRouter = require('./routes/netpay');
 var databaseRouter = require('./routes/database');
+var payrollSchedule=require('./routes/payrollschedule');
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.use('/users', usersRouter);
 app.use('/netpay', netpayRouter);
 app.use('/database', databaseRouter);
 app.use('/mail', mailRouter);
+app.use('/payrollSchedule',payrollSchedule);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -6,7 +6,7 @@ var router = express.Router();
 router.get('/', function(req, res, next) {
   res.send([
     {
-        image: "ecommerce.jpg",
+        image: "imagesCharles/modal/ecommerce.jpg",
         button: true,
         text: "CEMCS SHOP",
         link: "https://shop.chevroncemcs.com"

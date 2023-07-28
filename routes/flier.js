@@ -6,25 +6,25 @@ var router = express.Router();
 router.get('/', function(req, res, next) {
   res.send( [
     {
-        image: "WEB GRAPHICS PILOT ORDER 2.jpg",
+        image: "imagesCharles/may/WEB GRAPHICS PILOT ORDER 2.jpg",
         button: true,
         text: "Shop Now",
         link: "https://shop.chevroncemcs.com"
     },
     {
-        image: "WEB GRAPHICS NEW VISA.jpg",
+        image: "imagesCharles/may/WEB GRAPHICS NEW VISA.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
     },
     {
-        image: "ADVERT RATE NEW.jpg",
+        image: "imagesCharles/may/ADVERT RATE NEW.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
     },
     {
-        image: "insurance.png",
+        image: "imagesCharles/may/insurance.png",
         button: false,
         text: "Test",
         link: "/imposter"
@@ -36,38 +36,38 @@ router.get('/', function(req, res, next) {
     // link:""
     // },            
     {
-        image: "WEB GRAPHICS NEW LOANS 2.jpg",
+        image: "imagesCharles/may/WEB GRAPHICS NEW LOANS 2.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
     },
     {
-        image: "WEB GRAPHICS Executive Loan NEW 2.jpg",
+        image: "imagesCharles/may/WEB GRAPHICS Executive Loan NEW 2.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
     },
     {
-        image: "WEB GRAPHICS NEW DEPOSITS.jpg",
+        image: "imagesCharles/may/WEB GRAPHICS NEW DEPOSITS.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
     },
 
     {
-        image: "WEB GRAPHICS NEW TELEPHONES 2.jpg",
+        image: "imagesCharles/may/WEB GRAPHICS NEW TELEPHONES 2.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
     },
     {
-        image: "exhibitor/themeadows.jpg",
+        image: "imagesCharles/may/exhibitor/themeadows.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
     },
     {
-        image: "exhibitor/regal.jpg",
+        image: "imagesCharles/may/exhibitor/regal.jpg",
         button: false,
         text: "Test",
         link: "/imposter"

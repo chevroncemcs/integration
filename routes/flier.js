@@ -12,7 +12,7 @@ router.get('/', function(req, res, next) {
         link: "https://shop.chevroncemcs.com"
     },
     {
-        image: "imagesCharles/may/WEB GRAPHICS NEW VISA.jpg",
+        image: "imagesCharles/august/WEB GRAPHICS NEW VISA 2.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
@@ -24,7 +24,7 @@ router.get('/', function(req, res, next) {
         link: "/imposter"
     },
     {
-        image: "imagesCharles/may/insurance.png",
+        image: "imagesCharles/august/NEW INSURANCE 2.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
@@ -48,7 +48,7 @@ router.get('/', function(req, res, next) {
         link: "/imposter"
     },
     {
-        image: "imagesCharles/may/WEB GRAPHICS NEW DEPOSITS.jpg",
+        image: "imagesCharles/august/WEB GRAPHICS NEW DEPOSITS 2.jpg",
         button: false,
         text: "Test",
         link: "/imposter"

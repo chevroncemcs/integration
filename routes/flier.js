@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.send( [
@@ -12,7 +13,7 @@ router.get('/', function(req, res, next) {
         link: "https://shop.chevroncemcs.com"
     },
     {
-        image: "imagesCharles/august/WEB GRAPHICS NEW VISA 2.jpg",
+        image: "imagesCharles/august/WEB GRAPHICS NEW VISA corrected.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
@@ -24,7 +25,7 @@ router.get('/', function(req, res, next) {
         link: "/imposter"
     },
     {
-        image: "imagesCharles/august/NEW INSURANCE 2.jpg",
+        image: "imagesCharles/august/NEW INSURANCE corrected.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
@@ -36,7 +37,7 @@ router.get('/', function(req, res, next) {
     // link:""
     // },            
     {
-        image: "imagesCharles/may/WEB GRAPHICS NEW LOANS 2.jpg",
+        image: "imagesCharles/may/WEB GRAPHICS NEW LOANS 2 corrected.jpg",
         button: false,
         text: "Test",
         link: "/imposter"
@@ -48,7 +49,7 @@ router.get('/', function(req, res, next) {
         link: "/imposter"
     },
     {
-        image: "imagesCharles/august/WEB GRAPHICS NEW DEPOSITS 2.jpg",
+        image: "imagesCharles/august/WEB GRAPHICS NEW DEPOSITS 2 correct.jpg",
         button: false,
         text: "Test",
         link: "/imposter"

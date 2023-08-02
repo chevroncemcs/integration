@@ -19,7 +19,7 @@ var app = express();
 /* SETTING RESPONSE HEADERS FOR THE SERVER */
 app.use((req, res, next) => {
   // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', 'cemcs.dev.lagnr.chevron.com');
 
   // Request methods you wish to allow
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE');

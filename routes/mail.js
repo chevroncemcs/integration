@@ -8,7 +8,7 @@ require('dotenv').config();
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'CEMCS' });
 });
-
+/*
 router.post('/send', function(req, res){
     if(req.header("APIKEY")!=process.env.APIKEY){
       res.send({
@@ -61,4 +61,5 @@ router.post('/send', function(req, res){
         }
       });
 })
+*/
 module.exports = router;

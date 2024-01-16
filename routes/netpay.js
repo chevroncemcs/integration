@@ -57,7 +57,7 @@ router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
   }
   const {empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher}=req.body
   console.log(empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher)
-  boolea=[1,1]
+  boolea=[1,0]
   res.send({
     error:false,
     value:boolea[Math.floor(Math.random()*boolea.length)]
@@ -73,7 +73,7 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
   }
   const {empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key}=req.body
   console.log(empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key)
-  boolea=[1,1]
+  boolea=[1,0]
   res.send({
     error:false,
     value:boolea[Math.floor(Math.random()*boolea.length)]
@@ -89,7 +89,7 @@ router.post('/canEmployeeGetOneTimeIncrease',(req,res)=>{
   }
   const {empno,currentDedution,additionalDeduction,month,year,key}=req.body
   console.log(empno,currentDedution,additionalDeduction,month,year,key)
-  boolea=[1,1]
+  boolea=[1,0]
   res.send({
     error:false,
     value:boolea[Math.floor(Math.random()*boolea.length)]

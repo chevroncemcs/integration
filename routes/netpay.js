@@ -74,10 +74,19 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
   const {empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key}=req.body
   console.log(empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key)
   boolea=[1,0]
-  res.send({
-    error:false,
-    value:boolea[Math.floor(Math.random()*boolea.length)]
-  })
+  if(targetAmount>10000000){
+    res.send({
+      error:false,
+      value:0
+    })
+  }
+  else{
+    res.send({
+      error:false,
+      value:1
+    })
+  }
+  
 })
 
 router.post('/canEmployeeGetOneTimeIncrease',(req,res)=>{

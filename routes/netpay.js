@@ -1,5 +1,8 @@
 var express = require('express');
 var router = express.Router();
+var url=`https://netpay-dev-cvx.azurewebsites.net/api/`
+var request = require('request');
+
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -56,12 +59,41 @@ router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
     })
   }
   const {empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher}=req.body
-  console.log(empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher)
-  boolea=[1,0]
-  res.send({
-    error:false,
-    value:boolea[Math.floor(Math.random()*boolea.length)]
-  })
+  // console.log(empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher)
+  var options = {
+    'method': 'GET',
+    'url': url+`can-employees-accomodate-additional-monthy-deductions?employeeNo=${empno}&currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=Y`,
+    'headers': {
+      'Content-Type': 'application/json',
+    },
+  };
+  // console.log(options.url)
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    // console.log(response.body);
+    result = JSON.parse(response.body)
+    if(result.resultDescription=="SUCCESS"){
+      res.send({
+        error:false,
+        value:result.employeeCanPerformAction,
+        message:result.resultDescription
+      })
+    }
+    else{
+      res.send({
+        error:true,
+        value:0,
+        message:result.resultDescription
+      })
+    }
+    
+  });
+  
+  // boolea=[1,0]
+  // res.send({
+  //   error:false,
+  //   value:boolea[Math.floor(Math.random()*boolea.length)]
+  // })
 })
 
 router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
@@ -72,20 +104,49 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
     })
   }
   const {empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key}=req.body
-  console.log(empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key)
-  boolea=[1,0]
-  if(targetAmount>10000000){
-    res.send({
-      error:false,
-      value:0
-    })
-  }
-  else{
-    res.send({
-      error:false,
-      value:1
-    })
-  }
+  // console.log(empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key)
+
+  var options = {
+    'method': 'GET',
+    'url': url+`can-employee-collect-target-loan?employeeNo=${empno}&targetLoanType=${targetLoanType}&currentDeductionForSpecifiedMonth=${currentDeductionForSpecifiedMonth}&targetAmount=${targetAmount}&key=Y`,
+    'headers': {
+      'Content-Type': 'application/json',
+    },
+  };
+  
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    // console.log(response.body);
+    result = JSON.parse(response.body)
+    if(result.resultDescription=="SUCCESS"){
+      res.send({
+        error:false,
+        value:result.employeeCanPerformAction,
+        message:result.resultDescription
+      })
+    }
+    else{
+      res.send({
+        error:true,
+        value:0,
+        message:result.resultDescription
+      })
+    }
+  });
+
+  // boolea=[1,0]
+  // if(targetAmount>10000000){
+  //   res.send({
+  //     error:false,
+  //     value:0
+  //   })
+  // }
+  // else{
+  //   res.send({
+  //     error:false,
+  //     value:1
+  //   })
+  // }
   
 })
 

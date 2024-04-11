@@ -75,7 +75,7 @@ router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
     if(result.resultDescription=="SUCCESS"){
       res.send({
         error:false,
-        value:result.employeeCanPerformAction,
+        value:result.employeeCanPerformAction?1:0,
         message:result.resultDescription
       })
     }
@@ -121,7 +121,7 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
     if(result.resultDescription=="SUCCESS"){
       res.send({
         error:false,
-        value:result.employeeCanPerformAction,
+        value:result.employeeCanPerformAction?1:0,
         message:result.resultDescription
       })
     }

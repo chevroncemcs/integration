@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var url=`https://netpay-dev-cvx.azurewebsites.net/api/`
+var url=`https://netpay-dev-cvx.azurewebsites.net/`
 var request = require('request');
 
 
@@ -62,7 +62,7 @@ router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
   // console.log(empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher)
   var options = {
     'method': 'GET',
-    'url': url+`can-employees-accomodate-additional-monthy-deductions?employeeNo=${empno}&currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=Y`,
+    'url': url+`deduction?employeeNo=${empno}&currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=Y`,
     'headers': {
       'Content-Type': 'application/json',
     },
@@ -108,7 +108,7 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
 
   var options = {
     'method': 'GET',
-    'url': url+`can-employee-collect-target-loan?employeeNo=${empno}&targetLoanType=${targetLoanType}&currentDeductionForSpecifiedMonth=${currentDeductionForSpecifiedMonth}&targetAmount=${targetAmount}&key=Y`,
+    'url': url+`loan?employeeNo=${empno}&targetLoanType=${targetLoanType}&currentDeductionForSpecifiedMonth=${currentDeductionForSpecifiedMonth}&targetAmount=${targetAmount}&key=Y`,
     'headers': {
       'Content-Type': 'application/json',
     },

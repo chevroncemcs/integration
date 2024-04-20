@@ -62,7 +62,7 @@ router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
   // console.log(empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher)
   var options = {
     'method': 'GET',
-    'url': url+`deduction?employeeNo=${empno}&currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=Y`,
+    'url': url+`employee/${empno}/deductions_eligibility?employeeNo=${empno}&currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=Y`,
     'headers': {
       'Content-Type': 'application/json',
     },
@@ -108,7 +108,7 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
 
   var options = {
     'method': 'GET',
-    'url': url+`loan?employeeNo=${empno}&targetLoanType=${targetLoanType}&currentDeductionForSpecifiedMonth=${currentDeductionForSpecifiedMonth}&targetAmount=${targetAmount}&key=Y`,
+    'url': url+`employee/${empno}/loan/${targetLoanType}/eligibility?employeeNo=${empno}&targetLoanType=${targetLoanType}&currentDeductionForSpecifiedMonth=${currentDeductionForSpecifiedMonth}&targetAmount=${targetAmount}&key=Y`,
     'headers': {
       'Content-Type': 'application/json',
     },

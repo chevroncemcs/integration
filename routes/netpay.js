@@ -197,10 +197,50 @@ router.post('/ebenefit',(req,res)=>{
   };
   request(options, function (error, response) {
     if (error) throw new Error(error);
+    report=[]
     var schedule=JSON.parse(response.body).message
+    for(j=0;j<schedule.length;j++){
+      memschedule=schedule[j]
+      // console.log(memschedule)
+      var name=memschedule[1]
+      var empno=memschedule[2]
+      for (i=3;i<=9;i++){
+        switch(i){
+          case 3:
+            dbacode=6020
+            break;
+          case 4:
+            dbacode=6020
+            break;
+          case 5:
+            dbacode=6070
+            break;
+          case 6:
+            dbacode=6070
+            break;
+          case 7:
+            dbacode=6060
+            break;
+          case 8:
+            dbacode=6085
+            break;
+          case 9:
+            dbacode=6070
+            break;
+        }
+        report.push({
+          employee_name:name,
+          employee_number:empno,
+          dba_code:dbacode,
+          deduct_amount:memschedule[i],
+          voucher:'Y'
+          
+        })
+      }
+    }
     res.send({
       error:false,
-      value:schedule
+      value:report
     })
   });
  

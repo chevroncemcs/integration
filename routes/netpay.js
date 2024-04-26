@@ -233,7 +233,7 @@ router.post('/ebenefit',(req,res)=>{
           employee_number:empno,
           dba_code:dbacode,
           deduct_amount:memschedule[i],
-          voucher:'Y'
+          AP_voucher:'Y'
           
         })
       }

@@ -167,4 +167,44 @@ router.post('/canEmployeeGetOneTimeIncrease',(req,res)=>{
   })
 })
 
+router.post('/ebenefit',(req,res)=>{
+  if(req.header("APIKEY")!=process.env.APIKEY){
+    res.send({
+      error:true,
+      message:"You are not authorized to access this resource!"
+    })
+  }
+  const {month,year}=req.body
+  // console.log(empno,currentDedution,additionalDeduction,month,year,key)
+  // boolea=[1,0]
+  var request = require('request');
+  var options = {
+    'method': 'POST',
+    'url': 'https://member.chevroncemcs.com/api/method/member_experience.api.api.fetch_report',
+    'headers': {
+      'Content-Type': 'application/json',
+      'Authorization': 'Basic MjFmODMwMmQ4YjNmNWIxOjk0YzhhNDhjYThlNjcyYg==',
+      'Cookie': 'full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image='
+    },
+    body: JSON.stringify({
+      "filters": {
+        "member_type": "Regular Member",
+        "month": month,
+        "year": year
+      }
+    })
+
+  };
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    var schedule=JSON.parse(response.body).message
+    res.send({
+      error:false,
+      value:schedule
+    })
+  });
+ 
+})
+
+
 module.exports = router;

@@ -114,26 +114,30 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
       'Content-Type': 'application/json',
     },
   };
-  
-  request(options, function (error, response) {
-    if (error) throw new Error(error);
-    // console.log(response.body);
-    result = JSON.parse(response.body)
-    if(result.resultDescription=="SUCCESS"){
-      res.send({
-        error:false,
-        value:result.employeeCanPerformAction?1:0,
-        message:result.resultDescription
-      })
-    }
-    else{
-      res.send({
-        error:true,
-        value:0,
-        message:result.resultDescription
-      })
-    }
-  });
+  res.send({
+    error:false,
+    value:1,
+    message:"none"
+  })
+  // request(options, function (error, response) {
+  //   if (error) throw new Error(error);
+  //   // console.log(response.body);
+  //   result = JSON.parse(response.body)
+  //   if(result.resultDescription=="SUCCESS"){
+  //     res.send({
+  //       error:false,
+  //       value:result.employeeCanPerformAction?1:0,
+  //       message:result.resultDescription
+  //     })
+  //   }
+  //   else{
+  //     res.send({
+  //       error:true,
+  //       value:0,
+  //       message:result.resultDescription
+  //     })
+  //   }
+  // });
 
   // boolea=[1,0]
   // if(targetAmount>10000000){

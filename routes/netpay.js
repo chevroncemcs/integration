@@ -60,41 +60,48 @@ router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
   }
   const {empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher}=req.body
   // console.log(empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher)
-  var options = {
-    'method': 'GET',
-    'url': url+`employee/${empno}/deductions_eligibility?employeeNo=${empno}&currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=CEMCS`,
-    'headers': {
-      'Content-Type': 'application/json',
-    },
-  };
-  // console.log(options.url)
-  request(options, function (error, response) {
-    if (error) throw new Error(error);
-    // console.log(response.body);
-    result = JSON.parse(response.body)
-    if(result.resultDescription=="SUCCESS"){
-      res.send({
-        error:false,
-        value:result.employeeCanPerformAction?1:0,
-        message:result.resultDescription
-      })
-    }
-    else{
-      res.send({
-        error:true,
-        value:0,
-        message:result.resultDescription,
-        // url:options.url
-      })
-    }
+  getToken((responsee)=>{
+    console.log(responsee.access_token)
+    var options = {
+      'method': 'GET',
+      'url': url+`employee/${empno}/deductions-eligibility?currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=CEMCS`,
+      'headers': {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' +responsee.access_token
+      },
+    };
+    // console.log(options.url)
+    request(options, function (error, response) {
+      
+      console.log("Body:",response.body)
+      if (error) throw new Error(error);
+      // console.log(response.body);
+      result = JSON.parse(response.body)
+      if(result.resultDescription=="SUCCESS"){
+        res.send({
+          error:false,
+          value:result.employeeCanPerformAction?1:0,
+          message:result.resultDescription
+        })
+      }
+      else{
+        res.send({
+          error:true,
+          value:0,
+          message:result.resultDescription,
+          // url:options.url
+        })
+      }
+      
+    });
     
-  });
-  
-  // boolea=[1,0]
-  // res.send({
-  //   error:false,
-  //   value:boolea[Math.floor(Math.random()*boolea.length)]
-  // })
+    // boolea=[1,0]
+    // res.send({
+    //   error:false,
+    //   value:boolea[Math.floor(Math.random()*boolea.length)]
+    // })
+  })
+ 
 })
 
 router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
@@ -250,5 +257,27 @@ router.post('/ebenefit',(req,res)=>{
  
 })
 
+
+function getToken(rescallback){
+  var request = require('request');
+  var options = {
+    'method': 'GET',
+    'url': 'https://login.microsoftonline.com/fd799da1-bfc1-4234-a91c-72b3a1cb9e26/oauth2/v2.0/token',
+    'headers': {
+      'Content-Type': 'application/x-www-form-urlencoded',      
+    },
+    form: {
+      'grant_type': 'client_credentials',
+      'client_id': process.env.CLIENT_ID,
+      'client_secret': process.env.CLIENT_SECRET,
+      'scope': process.env.SCOPE
+    }
+  };
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    return rescallback(JSON.parse(response.body))
+  });
+
+}
 
 module.exports = router;

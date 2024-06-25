@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var url=`https://netpay-dev-cvx.azurewebsites.net/`
+var url=`https://apim.chevron.com/public/netpay/v1/`
 var request = require('request');
 
 
@@ -67,7 +67,8 @@ router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
       'url': url+`employee/${empno}/deductions-eligibility?currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=CEMCS`,
       'headers': {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' +responsee.access_token
+        'Authorization': 'Bearer ' +responsee.access_token,
+        'Ocp-Apim-Subscription-Key': process.env.OCIM_KEY
       },
     };
     // console.log(options.url)
@@ -111,51 +112,52 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
       message:"You are not authorized to access this resource!"
     })
   }
-  const {empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key}=req.body
+  var {empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key}=req.body
   // console.log(empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key)
-
-  // getToken((responsee)=>{
-  //     console.log(responsee.access_token)
+  targetAmount=getTarget(targetAmount)
+  getToken((responsee)=>{
+      console.log(responsee.access_token)
     
-  //     var options = {
-  //       'method': 'GET',
-  //       'url': url+`employee/${empno}/loan/${targetLoanType}/eligibility?employeeNo=${empno}&targetLoanType=${targetLoanType}&currentDeductionForSpecifiedMonth=${currentDeductionForSpecifiedMonth}&targetAmount=${targetAmount}&key=CEMCS`,
-  //       'headers': {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': 'Bearer ' +responsee.access_token
-  //       },
-  //     };
-  //     // console.log(options.url)
-  //     request(options, function (error, response) {
+      var options = {
+        'method': 'GET',
+        'url': url+`employee/${empno}/loan/${targetLoanType}/eligibility?employeeNo=${empno}&targetLoanType=${targetLoanType}&currentDeductionForSpecifiedMonth=${currentDeductionForSpecifiedMonth}&targetAmount=${targetAmount}&key=CEMCS`,
+        'headers': {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' +responsee.access_token,
+          'Ocp-Apim-Subscription-Key': process.env.OCIM_KEY
+        },
+      };
+      // console.log(options.url)
+      request(options, function (error, response) {
         
-  //       console.log("Body:",response.body)
-  //       if (error) throw new Error(error);
-  //       // console.log(response.body);
-  //       result = JSON.parse(response.body)
-  //       if(result.resultDescription=="SUCCESS"){
-  //         res.send({
-  //           error:false,
-  //           value:result.employeeCanPerformAction?1:0,
-  //           message:result.resultDescription
-  //         })
-  //       }
-  //       else{
-  //         res.send({
-  //           error:true,
-  //           value:0,
-  //           message:result.resultDescription,
-  //           // url:options.url
-  //         })
-  //       }
+        console.log("Body:",response.body)
+        if (error) throw new Error(error);
+        // console.log(response.body);
+        result = JSON.parse(response.body)
+        if(result.resultDescription=="SUCCESS"){
+          res.send({
+            error:false,
+            value:result.employeeCanPerformAction?1:0,
+            message:result.resultDescription
+          })
+        }
+        else{
+          res.send({
+            error:true,
+            value:0,
+            message:result.resultDescription,
+            // url:options.url
+          })
+        }
         
-  //     });
+      });
       
-  //     // boolea=[1,0]
-  //     // res.send({
-  //     //   error:false,
-  //     //   value:boolea[Math.floor(Math.random()*boolea.length)]
-  //     // })
-  //   })
+      // boolea=[1,0]
+      // res.send({
+      //   error:false,
+      //   value:boolea[Math.floor(Math.random()*boolea.length)]
+      // })
+    })
 
   
   // res.send({
@@ -191,10 +193,10 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
   //   })
   // }
   // else{
-    res.send({
-      error:false,
-      value:1
-    })
+    // res.send({
+    //   error:false,
+    //   value:1
+    // })
   // }
   
 })
@@ -315,6 +317,10 @@ function getToken(rescallback){
     return rescallback(JSON.parse(response.body))
   });
 
+}
+
+function getTarget(amount){
+  return amount*0.75
 }
 
 module.exports = router;

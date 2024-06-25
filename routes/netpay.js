@@ -114,48 +114,48 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
   const {empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key}=req.body
   // console.log(empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key)
 
-  getToken((responsee)=>{
-      console.log(responsee.access_token)
+  // getToken((responsee)=>{
+  //     console.log(responsee.access_token)
     
-      var options = {
-        'method': 'GET',
-        'url': url+`employee/${empno}/loan/${targetLoanType}/eligibility?employeeNo=${empno}&targetLoanType=${targetLoanType}&currentDeductionForSpecifiedMonth=${currentDeductionForSpecifiedMonth}&targetAmount=${targetAmount}&key=CEMCS`,
-        'headers': {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' +responsee.access_token
-        },
-      };
-      // console.log(options.url)
-      request(options, function (error, response) {
+  //     var options = {
+  //       'method': 'GET',
+  //       'url': url+`employee/${empno}/loan/${targetLoanType}/eligibility?employeeNo=${empno}&targetLoanType=${targetLoanType}&currentDeductionForSpecifiedMonth=${currentDeductionForSpecifiedMonth}&targetAmount=${targetAmount}&key=CEMCS`,
+  //       'headers': {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': 'Bearer ' +responsee.access_token
+  //       },
+  //     };
+  //     // console.log(options.url)
+  //     request(options, function (error, response) {
         
-        console.log("Body:",response.body)
-        if (error) throw new Error(error);
-        // console.log(response.body);
-        result = JSON.parse(response.body)
-        if(result.resultDescription=="SUCCESS"){
-          res.send({
-            error:false,
-            value:result.employeeCanPerformAction?1:0,
-            message:result.resultDescription
-          })
-        }
-        else{
-          res.send({
-            error:true,
-            value:0,
-            message:result.resultDescription,
-            // url:options.url
-          })
-        }
+  //       console.log("Body:",response.body)
+  //       if (error) throw new Error(error);
+  //       // console.log(response.body);
+  //       result = JSON.parse(response.body)
+  //       if(result.resultDescription=="SUCCESS"){
+  //         res.send({
+  //           error:false,
+  //           value:result.employeeCanPerformAction?1:0,
+  //           message:result.resultDescription
+  //         })
+  //       }
+  //       else{
+  //         res.send({
+  //           error:true,
+  //           value:0,
+  //           message:result.resultDescription,
+  //           // url:options.url
+  //         })
+  //       }
         
-      });
+  //     });
       
-      // boolea=[1,0]
-      // res.send({
-      //   error:false,
-      //   value:boolea[Math.floor(Math.random()*boolea.length)]
-      // })
-    })
+  //     // boolea=[1,0]
+  //     // res.send({
+  //     //   error:false,
+  //     //   value:boolea[Math.floor(Math.random()*boolea.length)]
+  //     // })
+  //   })
 
   
   // res.send({
@@ -191,10 +191,10 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
   //   })
   // }
   // else{
-  //   res.send({
-  //     error:false,
-  //     value:1
-  //   })
+    res.send({
+      error:false,
+      value:1
+    })
   // }
   
 })

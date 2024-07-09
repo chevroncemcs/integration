@@ -233,7 +233,7 @@ router.post('/ebenefit',(req,res)=>{
     'url': 'https://member.chevroncemcs.com/api/method/member_experience.api.api.fetch_report',
     'headers': {
       'Content-Type': 'application/json',
-      'Authorization': 'Basic MjFmODMwMmQ4YjNmNWIxOjk0YzhhNDhjYThlNjcyYg==',
+      'Authorization': process.env.MEMBER_AUTH,
       'Cookie': 'full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image='
     },
     body: JSON.stringify({
@@ -254,38 +254,71 @@ router.post('/ebenefit',(req,res)=>{
       // console.log(memschedule)
       var name=memschedule[1]
       var empno=memschedule[2]
-      for (i=3;i<=9;i++){
+      var exception=[10]//Exception for ebenefits [TSL]
+      for (i=3;i<=14;i++){
         switch(i){
+          //Savings
           case 3:
             dbacode=6020
             break;
+          //SD
           case 4:
-            dbacode=6020
+            dbacode=6050
             break;
+          //STL
           case 5:
-            dbacode=6070
+            dbacode=6060
             break;
+          //LTL
           case 6:
             dbacode=6070
             break;
+          //CPAY
           case 7:
             dbacode=6060
             break;
+          //HAL
           case 8:
+            dbacode=6090
+            break;
+          //CL Car loan
+          case 9:
+            dbacode=6080
+            break;
+          //TSL
+          case 10:
+            dbacode=7070
+            break;
+          //EL1
+          case 11:
             dbacode=6085
             break;
-          case 9:
-            dbacode=6070
+          //EL2  
+          case 12:
+            dbacode=6085
+            break;
+          //EL3
+          case 13:
+            dbacode=6085
+            break;
+          //EL4
+          case 14:
+            dbacode=6085
             break;
         }
-        report.push({
-          employee_name:name,
-          employee_number:empno,
-          dba_code:dbacode,
-          deduct_amount:memschedule[i],
-          AP_voucher:'Y'
-          
-        })
+        if(!exception.includes(i)){
+          if(memschedule[i]!=0){
+            report.push({
+              employee_name:name,
+              employee_number:empno,
+              dba_code:dbacode,
+              deduct_amount:memschedule[i],
+              AP_voucher:'Y'
+              
+            })
+          }
+        }
+        
       }
     }
     res.send({

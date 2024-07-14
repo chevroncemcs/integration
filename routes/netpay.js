@@ -10,24 +10,31 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/getMemberExposure',(req,res)=>{
-    const {empNo,month,year}=req.body;
-    console.log(empNo,month,year)
-    val=Math.round(Math.random() * 100000,2)
-    res.send({
-      error:false,
-      value:val
+  const {empNo,month,year}=req.body
+  var request = require('request');
+  var options = {
+    'method': 'POST',
+    'url': 'https://member.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.get_exposure',
+    'headers': {
+      'Content-Type': 'application/json',
+      'Authorization': process.env.MEMBER_AUTH
+    },
+    body: JSON.stringify({
+      "empNo": empNo,
+      "month": month,
+      "year": year
     })
-    // let xml = `<?xml version="1.0" encoding="UTF-8"?>`
-    // // xml += `<user>`
-    // // for (let i = 0; i < 99; i++) {
-    //   // xml += `
-    //   // <double> 
-    //   //     <exposure>${val}</exposure>          
-    //   // </value>`
-    //   xml += `<double xmlns="http://www.cemcsltd.com/webservice">${val}</double>`
-    // // }    
-    // res.header('Content-Type', 'application/xml')
-    // res.status(200).send(xml)
+  
+  };
+  // res.send({
+  //   error: true
+  // });
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    console.log(response.body)
+    res.send(JSON.parse(response.body).message);
+  });
+  
 })
 
 router.post('/getMonthlyPayrollSchedule',(req,res)=>{

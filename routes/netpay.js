@@ -121,9 +121,10 @@ router.post('/canEmployeeCollectTargetLoan',(req,res)=>{
   }
   var {empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key}=req.body
   // console.log(empno,targetLoanType,currentDeductionForSpecifiedMonth,targetAmount,key)
-  targetAmount=getTarget(targetAmount)
+  // targetAmount=getTarget(targetAmount)
+  // console.log(targetAmount)
   getToken((responsee)=>{
-      console.log(responsee.access_token)
+      // console.log(responsee.access_token)
     
       var options = {
         'method': 'GET',

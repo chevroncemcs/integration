@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <% include header.ejs %>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+
+    <form id="ebenefit-form" method="get" action="/netpay/ebenefit" >
+      <div class="row mb-2 mx-auto">      
+        <div class="form-floating mb-2 px-2 col-5">
+          <select name="month"  id="month" type="Select" class="form-control" placeholder="name@example.com">
+            <option value=" "> </option>
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">Novermber</option>
+            <option value="December">December</option>
+          </select>
+          <label for="floatingInput">Month</label>                    
+        </div>    
+        <div class="form-floating mb-2 px-2 col-5">
+            <input name="year"  id="year" type="year" class="form-control" placeholder="name@example.com"/>
+            <label for="floatingInput">Year</label>                    
+          </div>  
+          <button type="submit" id="subbtn" class="btn btn-success col-2">Load</button>
+      </div>    
+    </form>
+    <br/>
+    <% if (show) { %>
+    <h3><%= month %>, <%=year%></h3>
+    <% } %>
+    <div class="container-fluid mt-3">     
+        <button class="btn btn-primary" onclick="exportToExcel('#template_table')" >Download</button>  
+        <table  id="template_table" class="table table-striped rounded">
+            <thead class="remove">           
+                <th>employeename</th>            
+                <th>empno</th>
+                <th>DBA Code</th>
+                <th>Amount</th>
+                <th>AP Voucher</th>
+                <th>Product</th>               
+            </thead>
+            <tbody class="remove">
+                <% if (show && ebenefit.length>0) { %>
+                    <% for (let i=0;i<ebenefit.length; i++){ %>
+                        <% item=ebenefit[i] %>
+                        <tr>
+                            <td><%= item.employee_name %></td>
+                            <td><%= item.employee_number %></td>
+                            <td><%= item.dba_code %></td>
+                            <td><%= item.deduct_amount.toLocaleString() %></td>
+                            <td><%= item.AP_voucher %></td>
+                            <td><%= item.product %></td>
+                        </tr>
+                    <% } %>
+                <% } %>
+            </tbody>
+        </table>
+      </div>
+    
+  </body>
+  <% include footer.ejs %>
+  <script src="/javascripts/ebenefit.js"></script>
+</html>

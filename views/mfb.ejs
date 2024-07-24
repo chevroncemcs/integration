@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <% include header.ejs %>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+    <h3>MFB file upload</h3>
+    <form id="mfb-form" method="post" action="/bulkproduct" >
+      <div class="row mb-2 mx-auto">      
+        <div class="form-floating mb-2 px-2 col-8">
+          <input name="csv"  id="csvFile" type="file" class="form-control" accept=".csv" placeholder="name@example.com" required>
+          <label for="floatingInput">CSV File</label>                    
+        </div>  
+        <div class="form-floating mb-2 px-2 col-5">
+            <select name="month"  id="month" type="Select" class="form-control" placeholder="name@example.com" required>
+              <option value=""></option>
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">Novermber</option>
+              <option value="December">December</option>
+            </select>
+            <label for="floatingInput">Month</label>                    
+          </div>    
+          <div class="form-floating mb-2 px-2 col-5">
+              <input name="year"  id="year" type="year" class="form-control" placeholder="name@example.com" required/>
+              <label for="floatingInput">Year</label>                    
+            </div>  
+            <button type="submit" id="subbtn" class="btn btn-success col-2">Load</button>    
+      </div>       
+      
+      <div class="container-fluid" id="table-container">
+
+      </div>
+  
+<!--      
+      <div class="d-grid gap-2">
+          <button type="submit" id="subbtn" class="btn btn-success disabled">Convert</button>
+      </div> -->
+      <div class="success-message">
+
+      </div>
+     
+  </form>
+
+    <br/>
+
+    <div class="container-fluid mt-3">
+        <h3> Payroll Transposed Format</h3>  
+        <p>Use this template to form your payroll deduction upload file</p>
+        <button class="btn btn-primary" onclick="exportToExcel('#template_table')" >Upload</button>  
+        <table  id="template_table" class="table table-striped rounded">
+            <thead class="remove">                
+                <th>employeename</th>            
+                <th>empno</th>
+                <th>DBA Code</th>
+                <th>Amount</th>               
+            </thead>
+            <tbody class="remove">
+                <tr>                
+                    <td>CEMCS Member</td>
+                    <td>20001</td>
+                    <td>6040</td>
+                    <td>50000</td>                 
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+ 
+  </body>
+  <% include footer.ejs %>
+  <script src="/javascripts/ebenefit.js"></script>
+</html>

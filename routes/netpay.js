@@ -43,6 +43,40 @@ router.post('/getMemberExposure',(req,res)=>{
   
 })
 
+router.post('/getMemberMonthlyExposure',(req,res)=>{  
+  if(req.header("APIKEY")!=process.env.APIKEY){
+    res.send({
+      error:true,
+      message:"You are not authorized to access this resource!"
+    })
+  }
+  const {empNo,month,year}=req.body
+  var request = require('request');
+  var options = {
+    'method': 'POST',
+    'url': 'https://member.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.get_monthly_exposure',
+    'headers': {
+      'Content-Type': 'application/json',
+      'Authorization': process.env.MEMBER_AUTH
+    },
+    body: JSON.stringify({
+      "empNo": empNo,
+      "month": month,
+      "year": year
+    })
+  
+  };
+  // res.send({
+  //   error: true
+  // });
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    console.log(response.body)
+    res.send(JSON.parse(response.body).message);
+  });
+  
+})
+
 router.post('/uploadMfb',(req,res)=>{
   const {month,year,deductions}=req.body
   console.log(req.body);

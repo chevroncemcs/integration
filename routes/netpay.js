@@ -436,19 +436,19 @@ function getTarget(amount){
   return amount*0.75
 }
 
-router.get('/ebenefit', async function(req, res, next) {  
-  const {month,year}=req.query
+// router.get('/ebenefit', async function(req, res, next) {  
+//   const {month,year}=req.query
 
-  if (month !== undefined && year !== undefined){
-    await getEbenefits(month, year, (data)=>{
-      ebenefit=data.value;      
-      res.render('ebenefits', { title: 'CEMCS - Ebenefits',show:true,month:month,year:year,ebenefit:ebenefit});
-    })
-  }
-  else{
-    res.render('ebenefits', { title: 'CEMCS - Ebenefits', show:false });
-  }
-});
+//   if (month !== undefined && year !== undefined){
+//     await getEbenefits(month, year, (data)=>{
+//       ebenefit=data.value;      
+//       res.render('ebenefits', { title: 'CEMCS - Ebenefits',show:true,month:month,year:year,ebenefit:ebenefit});
+//     })
+//   }
+//   else{
+//     res.render('ebenefits', { title: 'CEMCS - Ebenefits', show:false });
+//   }
+// });
 
 router.get('/mfb', async function(req, res, next) {  
   res.render('mfb', { title: 'CEMCS - Ebenefits' });

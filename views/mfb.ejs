@@ -15,6 +15,10 @@
           <input name="csv"  id="csvFile" type="file" class="form-control" accept=".csv" placeholder="name@example.com" required>
           <label for="floatingInput">CSV File</label>                    
         </div>  
+        <div class="form-floating mb-2 px-2 col-8">
+          <input name="csv"  id="pin" type="password" class="form-control" placeholder="name@example.com" required>
+          <label for="floatingInput">PIN</label>                    
+        </div>  
         <div class="form-floating mb-2 px-2 col-5">
             <select name="month"  id="month" type="Select" class="form-control" placeholder="name@example.com" required>
               <option value=""></option>
@@ -36,7 +40,7 @@
           <div class="form-floating mb-2 px-2 col-5">
               <input name="year"  id="year" type="year" class="form-control" placeholder="name@example.com" required/>
               <label for="floatingInput">Year</label>                    
-            </div>  
+            </div>              
             <button type="submit" id="subbtn" class="btn btn-success col-2">Load</button>    
       </div>       
       
@@ -59,7 +63,7 @@
     <div class="container-fluid mt-3">
         <h3> Payroll Transposed Format</h3>  
         <p>Use this template to form your payroll deduction upload file</p>
-        <button class="btn btn-primary" onclick="exportToExcel('#template_table')" >Upload</button>  
+        <button class="btn btn-primary" onclick="exportToExcel('#template_table')" >Download Template</button>  
         <table  id="template_table" class="table table-striped rounded">
             <thead class="remove">                
                 <th>employeename</th>            

@@ -450,6 +450,21 @@ router.get('/ebenefit', async function(req, res, next) {
   }
 });
 
+router.get('/mfb/view', async function(req, res, next) {  
+  const {month,year}=req.query
+
+  if (month !== undefined && year !== undefined){
+    await getMFBEbenefits(month, year, (data)=>{
+      ebenefit=data.value;      
+      res.render('ebenefits', { title: 'CEMCS - MFB',show:true,month:month,year:year,ebenefit:ebenefit});
+    })
+  }
+  else{
+    res.render('mfblist', { title: 'CEMCS - MFB', show:false });
+  }
+});
+
+
 router.get('/mfb', async function(req, res, next) {  
   res.render('mfb', { title: 'CEMCS - Ebenefits' });
 });
@@ -587,6 +602,75 @@ async function getEbenefits(month,year,callback){
         }
         
       }
+    }
+    return callback({
+      error:false,
+      value:report
+    })
+     
+    })
+
+    // get mfb deduction    
+    
+    // console.log(response.body);
+    
+  });
+}
+
+async function getMFBEbenefits(month,year,callback){
+  var request = require('request');
+  var options = {
+    'method': 'POST',
+    'url': 'https://member.chevroncemcs.com/api/method/member_experience.api.api.fetch_report',
+    'headers': {
+      'Content-Type': 'application/json',
+      'Authorization': process.env.MEMBER_AUTH,
+      'Cookie': 'full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image='
+    },
+    body: JSON.stringify({
+      "filters": {
+        "member_type": "Regular Member",
+        "month": month,
+        "year": year
+      }
+    })
+
+  };
+  request(options, async function (error, response) {
+    if (error) throw new Error(error);
+    report=[]
+
+    await getMFBDeduction(month,year,(mfbdeduction)=>{
+      // console.log(mfbdeduction.deduction.data)
+      if(mfbdeduction.error==true){
+        deduction=[]
+      }
+      else{
+        var deduction=mfbdeduction.data.deduction
+      }      
+      var schedule=JSON.parse(response.body).message
+    for(j=0;j<schedule.length;j++){
+    // for(j=0;j<4;j++){
+      memschedule=schedule[j]
+      // console.log(memschedule)
+      var name=memschedule[1]
+      var empno=memschedule[2]
+      // console.log(empno)
+      var exception=[10]//Exception for ebenefits [TSL]
+
+      if(deduction[empno]){            
+        mfbded=deduction[empno]
+        console.log(empno)
+       //  console.log(mfbded)
+        report.push({
+          employee_name:mfbded.employee_name,
+          employee_number:mfbded.employee_number,
+          dba_code:6040,  //MFB Code
+          deduct_amount:mfbded.deduct_amount, //
+          AP_voucher:'Y',
+          product:"MFB"               
+        })
+      }              
     }
     return callback({
       error:false,

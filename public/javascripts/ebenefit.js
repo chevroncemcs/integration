@@ -87,31 +87,37 @@ function asemRow(rows){
 
 $("#mfb-form").submit(async (e)=>{
   e.preventDefault();
-  employee=JSON.parse(sessionStorage.getItem("employees"))
-  $("#subbtn").html(`<div class="spinner-border" role="status">
-  <span class="sr-only">Loading...</span>
-</div>`)
-$("#table-container").html(`<div class="spinner-border" role="status">
-<span class="sr-only">Loading...</span>
-</div>`);
-console.log(employee)
-  month=$("#month").val();
-  year=$("#year").val();
-  var data=await uploadData(month,year,employee);
-  $(data).ready(()=>{
-    data.message=data.error==false || data.error=='false'?data.message:"Uploaded Successfully!"
-  })
-
-  alert(data.message);
-
-  $(".success-message").html(`
-     ${data.message}
-  `)
-
-
-  $("#subbtn").html(`Submit`)
-  $("#subbtn").addClass(" disabled");
-  $("#table-container").html("");
+  if($("#pin").val()=="8098"){
+      employee=JSON.parse(sessionStorage.getItem("employees"))
+      $("#subbtn").html(`<div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>`)
+    $("#table-container").html(`<div class="spinner-border" role="status">
+    <span class="sr-only">Loading...</span>
+    </div>`);
+    console.log(employee)
+      month=$("#month").val();
+      year=$("#year").val();
+      var data=await uploadData(month,year,employee);
+      $(data).ready(()=>{
+        data.message=data.error==false || data.error=='false'?data.message:"Uploaded Successfully!"
+      })
+    
+      alert(data.message);
+    
+      $(".success-message").html(`
+        ${data.message}
+      `)
+    
+    
+      $("#subbtn").html(`Submit`)
+      $("#subbtn").addClass(" disabled");
+      $("#table-container").html("");
+  }
+  else{
+    alert("Invalid Pin")
+  }
+ 
   
 })
 

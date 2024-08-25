@@ -294,6 +294,7 @@ router.post('/canEmployeeGetOneTimeIncrease',(req,res)=>{
   })
 })
 
+
 router.post('/ebenefit',async(req,res)=>{
   if(req.header("APIKEY")!=process.env.APIKEY){
     res.send({
@@ -307,7 +308,7 @@ router.post('/ebenefit',async(req,res)=>{
   var request = require('request');
   var options = {
     'method': 'POST',
-    'url': 'https://member.chevroncemcs.com/api/method/member_experience.api.api.fetch_report',
+    'url': 'https://retiree.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.get_deductions',
     'headers': {
       'Content-Type': 'application/json',
       'Authorization': process.env.MEMBER_AUTH,
@@ -410,6 +411,122 @@ router.post('/ebenefit',async(req,res)=>{
 })
 
 
+// router.post('/ebenefit',async(req,res)=>{
+//   if(req.header("APIKEY")!=process.env.APIKEY){
+//     res.send({
+//       error:true,
+//       message:"You are not authorized to access this resource!"
+//     })
+//   }
+//   const {month,year}=req.body
+//   // console.log(empno,currentDedution,additionalDeduction,month,year,key)
+//   // boolea=[1,0]
+//   var request = require('request');
+//   var options = {
+//     'method': 'POST',
+//     'url': 'https://member.chevroncemcs.com/api/method/member_experience.api.api.fetch_report',
+//     'headers': {
+//       'Content-Type': 'application/json',
+//       'Authorization': process.env.MEMBER_AUTH,
+//       'Cookie': 'full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image='
+//     },
+//     body: JSON.stringify({
+//       "filters": {
+//         "member_type": "Regular Member",
+//         "month": month,
+//         "year": year
+//       }
+//     })
+
+//   };
+//   await getEbenefits(month,year,(result)=>{
+//     res.send(result);
+//   });
+//   // request(options, function (error, response) {
+//   //   if (error) throw new Error(error);
+//   //   report=[]
+//   //   var schedule=JSON.parse(response.body).message
+//   //   for(j=0;j<schedule.length;j++){
+//   //     memschedule=schedule[j]
+//   //     // console.log(memschedule)
+//   //     var name=memschedule[1]
+//   //     var empno=memschedule[2]
+//   //     var exception=[10]//Exception for ebenefits [TSL]
+//   //     for (i=3;i<=14;i++){
+//   //       switch(i){
+//   //         //Savings
+//   //         case 3:
+//   //           dbacode=6020
+//   //           break;
+//   //         //SD
+//   //         case 4:
+//   //           dbacode=6050
+//   //           break;
+//   //         //STL
+//   //         case 5:
+//   //           dbacode=6060
+//   //           break;
+//   //         //LTL
+//   //         case 6:
+//   //           dbacode=6070
+//   //           break;
+//   //         //CPAY
+//   //         case 7:
+//   //           dbacode=6060
+//   //           break;
+//   //         //HAL
+//   //         case 8:
+//   //           dbacode=6090
+//   //           break;
+//   //         //CL Car loan
+//   //         case 9:
+//   //           dbacode=6080
+//   //           break;
+//   //         //TSL
+//   //         case 10:
+//   //           dbacode=7070
+//   //           break;
+//   //         //EL1
+//   //         case 11:
+//   //           dbacode=6085
+//   //           break;
+//   //         //EL2  
+//   //         case 12:
+//   //           dbacode=6085
+//   //           break;
+//   //         //EL3
+//   //         case 13:
+//   //           dbacode=6085
+//   //           break;
+//   //         //EL4
+//   //         case 14:
+//   //           dbacode=6085
+//   //           break;
+//   //       }
+//   //       if(!exception.includes(i)){
+//   //         if(memschedule[i]!=0){
+//   //           report.push({
+//   //             employee_name:name,
+//   //             employee_number:empno,
+//   //             dba_code:dbacode,
+//   //             deduct_amount:memschedule[i],
+//   //             AP_voucher:'Y'
+              
+//   //           })
+//   //         }
+//   //       }
+        
+//   //     }
+//   //   }
+//   //   res.send({
+//   //     error:false,
+//   //     value:report
+//   //   })
+//   // });
+ 
+// })
+
+
 function getToken(rescallback){
   var request = require('request');
   var options = {
@@ -473,18 +590,15 @@ async function getEbenefits(month,year,callback){
   var request = require('request');
   var options = {
     'method': 'POST',
-    'url': 'https://member.chevroncemcs.com/api/method/member_experience.api.api.fetch_report',
+    'url': 'https://member.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.get_deductions',
     'headers': {
       'Content-Type': 'application/json',
       'Authorization': process.env.MEMBER_AUTH,
       'Cookie': 'full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image='
     },
     body: JSON.stringify({
-      "filters": {
-        "member_type": "Regular Member",
-        "month": month,
-        "year": year
-      }
+      "month": month,
+      "year": year
     })
 
   };
@@ -500,16 +614,91 @@ async function getEbenefits(month,year,callback){
       else{
         var deduction=mfbdeduction.data.deduction
       }      
-      var schedule=JSON.parse(response.body).message
+      var schedule=JSON.parse(response.body).message.data.deduction
     for(j=0;j<schedule.length;j++){
     // for(j=0;j<4;j++){
       memschedule=schedule[j]
       // console.log(memschedule)
-      var name=memschedule[1]
-      var empno=memschedule[2]
+      var name=memschedule.employee_name
+      var empno=memschedule.employee_number
       // console.log(empno)
       var exception=[10]//Exception for ebenefits [TSL]
 
+      
+
+      //Push Contributions
+      if(memschedule.savings>0){
+        report.push({
+          employee_name:name,
+          employee_number:empno,
+          dba_code:6020,
+          deduct_amount:Math.round(memschedule.savings * 100) / 100,
+          AP_voucher:'Y',
+          product:'Savings'             
+        })
+      }
+      if(memschedule.sd>0){
+        report.push({
+          employee_name:name,
+          employee_number:empno,
+          dba_code:6050,
+          deduct_amount:Math.round(memschedule.sd * 100) / 100,
+          AP_voucher:'Y',
+          product:'SD'             
+        })
+      }
+      if(memschedule.stl>0){
+        report.push({
+          employee_name:name,
+          employee_number:empno,
+          dba_code:6060,
+          deduct_amount:Math.round(memschedule.stl * 100) / 100,
+          AP_voucher:'Y',
+          product:'STL'              
+        })
+      }
+      if(memschedule.ltl>0){
+        report.push({
+          employee_name:name,
+          employee_number:empno,
+          dba_code:6070,
+          deduct_amount:Math.round(memschedule.ltl * 100) / 100,
+          AP_voucher:'Y',
+          product:'LTL'              
+        })
+      }
+      if(memschedule.vl>0){
+        report.push({
+          employee_name:name,
+          employee_number:empno,
+          dba_code:6080,
+          deduct_amount:Math.round(memschedule.vl * 100) / 100,
+          AP_voucher:'Y',
+          product:'VL'            
+        })
+      }
+      if(memschedule.hl>0){
+        report.push({
+          employee_name:name,
+          employee_number:empno,
+          dba_code:6090,
+          deduct_amount:Math.round(memschedule.hl * 100) / 100,
+          AP_voucher:'Y',
+          product:'HL'             
+        })
+      }
+      if(memschedule.el>0){
+        report.push({
+          employee_name:name,
+          employee_number:empno,
+          dba_code:6085,
+          deduct_amount:Math.round(memschedule.el * 100) / 100,
+          AP_voucher:'Y',
+          product:'EL'             
+        })
+      }
+     
+          
       if(deduction[empno]){            
         mfbded=deduction[empno]
         console.log(empno)
@@ -523,85 +712,76 @@ async function getEbenefits(month,year,callback){
           product:"MFB"               
         })
       }     
-
+      // for (i=3;i<=14;i++){
+      //   switch(i){
+      //     //Savings
+      //     case 3:
+      //       product="Savings"
+      //       dbacode=6020
+      //       break;
+      //     //SD
+      //     case 4:
+      //       product="SD"
+      //       dbacode=6050
+      //       break;
+      //     //STL
+      //     case 5:
+      //       product="Short Term Loan"
+      //       dbacode=6060
+      //       break;
+      //     //LTL
+      //     case 6:
+      //       product="Long Term Loan"
+      //       dbacode=6070
+      //       break;
+      //     //CPAY
+      //     case 7:
+      //       product="CPAY"
+      //       dbacode=6060
+      //       break;
+      //     //HAL
+      //     case 8:
+      //       product="Home Appliance Loan"
+      //       dbacode=6090
+      //       break;
+      //     //CL Car loan
+      //     case 9:
+      //       product="Car Loan"
+      //       dbacode=6080
+      //       break;
+      //     //TSL
+      //     case 10:
+      //       product="Target Loan"
+      //       dbacode=7070
+      //       break;
+      //     //EL1
+      //     case 11:
+      //       product="EL1"
+      //       dbacode=6085
+      //       break;
+      //     //EL2  
+      //     case 12:
+      //       product="EL2"
+      //       dbacode=6085
+      //       break;
+      //     //EL3
+      //     case 13:
+      //       product="EL3"
+      //       dbacode=6085
+      //       break;
+      //     //EL4
+      //     case 14:
+      //       product="EL4"
+      //       dbacode=6085
+      //       break;
+      //   }
+      //   if(!exception.includes(i)){
+      //     if(memschedule[i]!=0){
           
-      for (i=3;i<=14;i++){
-        switch(i){
-          //Savings
-          case 3:
-            product="Savings"
-            dbacode=6020
-            break;
-          //SD
-          case 4:
-            product="SD"
-            dbacode=6050
-            break;
-          //STL
-          case 5:
-            product="Short Term Loan"
-            dbacode=6060
-            break;
-          //LTL
-          case 6:
-            product="Long Term Loan"
-            dbacode=6070
-            break;
-          //CPAY
-          case 7:
-            product="CPAY"
-            dbacode=6060
-            break;
-          //HAL
-          case 8:
-            product="Home Appliance Loan"
-            dbacode=6090
-            break;
-          //CL Car loan
-          case 9:
-            product="Car Loan"
-            dbacode=6080
-            break;
-          //TSL
-          case 10:
-            product="Target Loan"
-            dbacode=7070
-            break;
-          //EL1
-          case 11:
-            product="EL1"
-            dbacode=6085
-            break;
-          //EL2  
-          case 12:
-            product="EL2"
-            dbacode=6085
-            break;
-          //EL3
-          case 13:
-            product="EL3"
-            dbacode=6085
-            break;
-          //EL4
-          case 14:
-            product="EL4"
-            dbacode=6085
-            break;
-        }
-        if(!exception.includes(i)){
-          if(memschedule[i]!=0){
-            report.push({
-              employee_name:name,
-              employee_number:empno,
-              dba_code:dbacode,
-              deduct_amount:memschedule[i],
-              AP_voucher:'Y',
-              product:product              
-            })
-          }
-        }
+      //     }
+      //   }
         
-      }
+      // }
     }
     return callback({
       error:false,
@@ -616,6 +796,154 @@ async function getEbenefits(month,year,callback){
     
   });
 }
+
+// async function getEbenefits(month,year,callback){
+//   var request = require('request');
+//   var options = {
+//     'method': 'POST',
+//     'url': 'https://member.chevroncemcs.com/api/method/member_experience.api.api.fetch_report',
+//     'headers': {
+//       'Content-Type': 'application/json',
+//       'Authorization': process.env.MEMBER_AUTH,
+//       'Cookie': 'full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image='
+//     },
+//     body: JSON.stringify({
+//       "filters": {
+//         "member_type": "Regular Member",
+//         "month": month,
+//         "year": year
+//       }
+//     })
+
+//   };
+//   request(options, async function (error, response) {
+//     if (error) throw new Error(error);
+//     report=[]
+
+//     await getMFBDeduction(month,year,(mfbdeduction)=>{
+//       // console.log(mfbdeduction.deduction.data)
+//       if(mfbdeduction.error==true){
+//         deduction=[]
+//       }
+//       else{
+//         var deduction=mfbdeduction.data.deduction
+//       }      
+//       var schedule=JSON.parse(response.body).message
+//     for(j=0;j<schedule.length;j++){
+//     // for(j=0;j<4;j++){
+//       memschedule=schedule[j]
+//       // console.log(memschedule)
+//       var name=memschedule[1]
+//       var empno=memschedule[2]
+//       // console.log(empno)
+//       var exception=[10]//Exception for ebenefits [TSL]
+
+//       if(deduction[empno]){            
+//         mfbded=deduction[empno]
+//         console.log(empno)
+//        //  console.log(mfbded)
+//         report.push({
+//           employee_name:mfbded.employee_name,
+//           employee_number:mfbded.employee_number,
+//           dba_code:6040,  //MFB Code
+//           deduct_amount:mfbded.deduct_amount, //
+//           AP_voucher:'Y',
+//           product:"MFB"               
+//         })
+//       }     
+
+          
+//       for (i=3;i<=14;i++){
+//         switch(i){
+//           //Savings
+//           case 3:
+//             product="Savings"
+//             dbacode=6020
+//             break;
+//           //SD
+//           case 4:
+//             product="SD"
+//             dbacode=6050
+//             break;
+//           //STL
+//           case 5:
+//             product="Short Term Loan"
+//             dbacode=6060
+//             break;
+//           //LTL
+//           case 6:
+//             product="Long Term Loan"
+//             dbacode=6070
+//             break;
+//           //CPAY
+//           case 7:
+//             product="CPAY"
+//             dbacode=6060
+//             break;
+//           //HAL
+//           case 8:
+//             product="Home Appliance Loan"
+//             dbacode=6090
+//             break;
+//           //CL Car loan
+//           case 9:
+//             product="Car Loan"
+//             dbacode=6080
+//             break;
+//           //TSL
+//           case 10:
+//             product="Target Loan"
+//             dbacode=7070
+//             break;
+//           //EL1
+//           case 11:
+//             product="EL1"
+//             dbacode=6085
+//             break;
+//           //EL2  
+//           case 12:
+//             product="EL2"
+//             dbacode=6085
+//             break;
+//           //EL3
+//           case 13:
+//             product="EL3"
+//             dbacode=6085
+//             break;
+//           //EL4
+//           case 14:
+//             product="EL4"
+//             dbacode=6085
+//             break;
+//         }
+//         if(!exception.includes(i)){
+//           if(memschedule[i]!=0){
+//             report.push({
+//               employee_name:name,
+//               employee_number:empno,
+//               dba_code:dbacode,
+//               deduct_amount:memschedule[i],
+//               AP_voucher:'Y',
+//               product:product              
+//             })
+//           }
+//         }
+        
+//       }
+//     }
+//     return callback({
+//       error:false,
+//       value:report
+//     })
+     
+//     })
+
+//     // get mfb deduction    
+    
+//     // console.log(response.body);
+    
+//   });
+// }
 
 async function getMFBEbenefits(month,year,callback){
   var request = require('request');

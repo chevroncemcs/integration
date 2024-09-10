@@ -302,7 +302,13 @@ router.post('/ebenefit',async(req,res)=>{
       message:"You are not authorized to access this resource!"
     })
   }
-  const {month,year}=req.body
+  var {month,year}=req.body
+ var  months=["January", "February", "March", "April", "May", "June", "July", "August", "September","October", "November", "December"]
+  a=typeof month 
+  if(a=="number"){
+    month=months[month-1]
+  }  
+  console.log(month)
   // console.log(empno,currentDedution,additionalDeduction,month,year,key)
   // boolea=[1,0]
   var request = require('request');

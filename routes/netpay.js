@@ -30,7 +30,7 @@ router.post('/getMFBExposure',(req,res)=>{
                 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                   <soap:Body>    
                     <GetMemberMonthlyExposureMFB xmlns="http://www.cemcsltd.com/webservice">  
-                      <nEmpNo>${empno}</nEmpNo>
+                      <nEmpNo>${empNo}</nEmpNo>
                       <payrollMonth>${month}</payrollMonth>
                       <sYear>${year}</sYear>
                     </GetMemberMonthlyExposureMFB>

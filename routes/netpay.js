@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var url=`https://apim.chevron.com/public/netpay/v1/`
 var request = require('request');
+const xml2js = require('xml2js');
 
 
 /* GET home page. */
@@ -40,11 +41,19 @@ router.post('/getMFBExposure',(req,res)=>{
     };
     request(options, function (error, response) {
       if (error) throw new Error(error);
-      value=response.body;
-      res.send({
-        error:false,
-        value:value
-      })
+      xml=response.body;      
+      xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+        if (err) {
+          console.error('Error parsing XML:', err);
+        } else {
+          const value = result['soap:Envelope']['soap:Body'].GetMemberMonthlyExposureMFBResponse.GetMemberMonthlyExposureMFBResult;
+          res.send({
+            error:false,
+            value:value
+          })
+        }
+      });
+     
     });
 
   }

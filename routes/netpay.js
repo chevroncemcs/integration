@@ -9,6 +9,48 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'CEMCS' });
 });
 
+router.post('/getMFBExposure',(req,res)=>{  
+  if(req.header("APIKEY")!=process.env.APIKEY){
+    res.send({
+      error:true,
+      message:"You are not authorized to access this resource!"
+    })
+  }
+  else{    
+    const {empNo,month,year}=req.body
+    var options = {
+      'method': 'POST',
+      'url': 'https://cemcsmfb.azurewebsites.net/CEMCSPayrollDeductionsWebService.asmx',
+      'headers': {
+        'Content-Type': 'text/xml',
+        'SOAPAction': 'http://www.cemcsltd.com/webservice/GetMemberMonthlyExposureMFB',       
+        'Cookie': 'ARRAffinity=f443b343d2233fc9ee0e441f7dcd7af8598d6a2b75c2c70f62c51459f276efae; ARRAffinitySameSite=f443b343d2233fc9ee0e441f7dcd7af8598d6a2b75c2c70f62c51459f276efae'
+      },
+      body: `<?xml version="1.0" encoding="utf-8"?>
+                <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                  <soap:Body>    
+                    <GetMemberMonthlyExposureMFB xmlns="http://www.cemcsltd.com/webservice">  
+                      <nEmpNo>${empno}</nEmpNo>
+                      <payrollMonth>${month}</payrollMonth>
+                      <sYear>${year}</sYear>
+                    </GetMemberMonthlyExposureMFB>
+                  </soap:Body>
+                </soap:Envelope>`
+    
+    };
+    request(options, function (error, response) {
+      if (error) throw new Error(error);
+      value=response.body;
+      res.send({
+        error:false,
+        value:value
+      })
+    });
+
+  }
+})
+
+
 router.post('/getMemberExposure',(req,res)=>{  
   if(req.header("APIKEY")!=process.env.APIKEY){
     res.send({

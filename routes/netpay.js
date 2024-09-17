@@ -49,7 +49,7 @@ router.post('/getMFBExposure',(req,res)=>{
           const value = result['soap:Envelope']['soap:Body'].GetMemberMonthlyExposureMFBResponse.GetMemberMonthlyExposureMFBResult;
           res.send({
             error:false,
-            value:paseInt(value)
+            value:parseInt(value)
           })
         }
       });

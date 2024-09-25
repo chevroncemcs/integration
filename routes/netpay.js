@@ -10,55 +10,23 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'CEMCS' });
 });
 
-router.post('/getMFBExposure',(req,res)=>{  
+router.post('/getMFBExposure',async(req,res)=>{  
   if(req.header("APIKEY")!=process.env.APIKEY){
     res.send({
       error:true,
-      message:"You are not authorized to access this resource!"
+      message:`You are not authorized to access this resource!`
     })
   }
   else{    
     const {empNo,month,year}=req.body
-    var options = {
-      'method': 'POST',
-      'url': 'https://cemcsmfb.azurewebsites.net/CEMCSPayrollDeductionsWebService.asmx',
-      'headers': {
-        'Content-Type': 'text/xml',
-        'SOAPAction': 'http://www.cemcsltd.com/webservice/GetMemberMonthlyExposureMFB',       
-        'Cookie': 'ARRAffinity=f443b343d2233fc9ee0e441f7dcd7af8598d6a2b75c2c70f62c51459f276efae; ARRAffinitySameSite=f443b343d2233fc9ee0e441f7dcd7af8598d6a2b75c2c70f62c51459f276efae'
-      },
-      body: `<?xml version="1.0" encoding="utf-8"?>
-                <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                  <soap:Body>    
-                    <GetMemberMonthlyExposureMFB xmlns="http://www.cemcsltd.com/webservice">  
-                      <nEmpNo>${empNo}</nEmpNo>
-                      <payrollMonth>${month}</payrollMonth>
-                      <sYear>${year}</sYear>
-                    </GetMemberMonthlyExposureMFB>
-                  </soap:Body>
-                </soap:Envelope>`
-    
-    };
-    request(options, function (error, response) {
-      if (error) throw new Error(error);
-      xml=response.body;      
-      xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
-        if (err) {
-          console.error('Error parsing XML:', err);
-        } else {
-          const value = result['soap:Envelope']['soap:Body'].GetMemberMonthlyExposureMFBResponse.GetMemberMonthlyExposureMFBResult;
-          res.send({
-            error:false,
-            value:parseInt(value)
-          })
-        }
-      });
-     
-    });
-
+    await getMFBExposure(empNo,month,year,(value)=>{
+      res.send({
+        error:false,
+        value:value
+      })
+    })
   }
 })
-
 
 router.post('/getMemberExposure',(req,res)=>{  
   if(req.header("APIKEY")!=process.env.APIKEY){
@@ -80,21 +48,25 @@ router.post('/getMemberExposure',(req,res)=>{
       "empNo": empNo,
       "month": month,
       "year": year
-    })
-  
+    })  
   };
   // res.send({
   //   error: true
   // });
-  request(options, function (error, response) {
+  request(options, async function (error, response) {
     if (error) throw new Error(error);
     console.log(response.body)
-    res.send(JSON.parse(response.body).message);
+    result=JSON.parse(response.body).message;
+    await getMFBExposure(empNo,month,year,(value)=>{
+      result.value+=value
+      res.send(result); 
+    });  
   });
+ 
   
 })
 
-router.post('/getMemberMonthlyExposure',(req,res)=>{  
+router.post('/getMemberHubExposure',(req,res)=>{  
   if(req.header("APIKEY")!=process.env.APIKEY){
     res.send({
       error:true,
@@ -105,7 +77,7 @@ router.post('/getMemberMonthlyExposure',(req,res)=>{
   var request = require('request');
   var options = {
     'method': 'POST',
-    'url': 'https://member.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.get_monthly_exposure',
+    'url': 'https://member.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.get_exposure',
     'headers': {
       'Content-Type': 'application/json',
       'Authorization': process.env.MEMBER_AUTH
@@ -114,17 +86,35 @@ router.post('/getMemberMonthlyExposure',(req,res)=>{
       "empNo": empNo,
       "month": month,
       "year": year
-    })
-  
+    })  
   };
   // res.send({
   //   error: true
   // });
-  request(options, function (error, response) {
+  request(options, async function (error, response) {
     if (error) throw new Error(error);
     console.log(response.body)
-    res.send(JSON.parse(response.body).message);
+    result=JSON.parse(response.body).message;
+    res.send(result);
   });
+ 
+  
+})
+
+router.post('/getMemberMonthlyExposure',async (req,res)=>{  
+  if(req.header("APIKEY")!=process.env.APIKEY){
+    res.send({
+      error:true,
+      message:"You are not authorized to access this resource!"
+    })
+  }
+  const {empNo,month,year}=req.body
+  await getHubExposure(empNo,month,year,(value)=>{
+    res.send({
+      error:false,
+      value:value
+    })
+  })
   
 })
 
@@ -178,56 +168,116 @@ router.post('/getMonthlyPayrollSchedule',(req,res)=>{
   })
 })
 
-router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',(req,res)=>{
+router.post('/canEmployeeAccomodateAdditionalMonthlyDeduction',async(req,res)=>{
   if(req.header("APIKEY")!=process.env.APIKEY){
     res.send({
       error:true,
       message:"You are not authorized to access this resource!"
     })
   }
-  const {empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher}=req.body
+  var {empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher}=req.body
   // console.log(empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher)
-  getToken((responsee)=>{
-    console.log(responsee.access_token)
-    var options = {
-      'method': 'GET',
-      'url': url+`employee/${empno}/deductions-eligibility?currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=CEMCS`,
-      'headers': {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' +responsee.access_token,
-        'Ocp-Apim-Subscription-Key': process.env.OCIM_KEY
-      },
-    };
-    // console.log(options.url)
-    request(options, function (error, response) {
+  await getMFBExposure(empno,repayStartMonth,year,(value)=>{
+    currentExposure+= value
+    getToken((responsee)=>{
+      console.log(responsee.access_token)
+      var options = {
+        'method': 'GET',
+        'url': url+`employee/${empno}/deductions-eligibility?currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=CEMCS`,
+        'headers': {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' +responsee.access_token,
+          'Ocp-Apim-Subscription-Key': process.env.OCIM_KEY
+        },
+      };
+      // console.log(options.url)
+      request(options, function (error, response) {
+        
+        console.log("Body:",response.body)
+        if (error) throw new Error(error);
+        // console.log(response.body);
+        result = JSON.parse(response.body)
+        if(result.resultDescription=="SUCCESS"){
+          res.send({
+            error:false,
+            value:result.employeeCanPerformAction?1:0,
+            message:result.resultDescription
+          })
+        }
+        else{
+          res.send({
+            error:true,
+            value:0,
+            message:result.resultDescription,
+            // url:options.url
+          })
+        }
+        
+      });
       
-      console.log("Body:",response.body)
-      if (error) throw new Error(error);
-      // console.log(response.body);
-      result = JSON.parse(response.body)
-      if(result.resultDescription=="SUCCESS"){
-        res.send({
-          error:false,
-          value:result.employeeCanPerformAction?1:0,
-          message:result.resultDescription
-        })
-      }
-      else{
-        res.send({
-          error:true,
-          value:0,
-          message:result.resultDescription,
-          // url:options.url
-        })
-      }
+      // boolea=[1,0]
+      // res.send({
+      //   error:false,
+      //   value:boolea[Math.floor(Math.random()*boolea.length)]
+      // })
+    })
+  })
+ 
+})
+
+router.post('/canEmployeeAccomodateAdditionalMonthlyDeductionMFB',async(req,res)=>{
+  if(req.header("APIKEY")!=process.env.APIKEY){
+    res.send({
+      error:true,
+      message:"You are not authorized to access this resource!"
+    })
+  }
+  var {empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher}=req.body
+  // console.log(empno,currentExposure,monthlyRepayment,repayStartMonth,year,voucher)
+  await getHubExposure(empno,repayStartMonth,year,(value)=>{
+    currentExposure+= value
+    getToken((responsee)=>{
+      console.log(responsee.access_token)
+      var options = {
+        'method': 'GET',
+        'url': url+`employee/${empno}/deductions-eligibility?currentMonthlyDeductions=${currentExposure}&additionalMonthyDeduction=${monthlyRepayment}&startMonth=${repayStartMonth}&year=${year}&key=CEMCS`,
+        'headers': {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' +responsee.access_token,
+          'Ocp-Apim-Subscription-Key': process.env.OCIM_KEY
+        },
+      };
+      // console.log(options.url)
+      request(options, function (error, response) {
+        
+        console.log("Body:",response.body)
+        if (error) throw new Error(error);
+        // console.log(response.body);
+        result = JSON.parse(response.body)
+        if(result.resultDescription=="SUCCESS"){
+          res.send({
+            error:false,
+            value:result.employeeCanPerformAction?1:0,
+            message:result.resultDescription
+          })
+        }
+        else{
+          res.send({
+            error:true,
+            value:0,
+            message:result.resultDescription,
+            // url:options.url
+          })
+        }
+        
+      });
       
-    });
-    
-    // boolea=[1,0]
-    // res.send({
-    //   error:false,
-    //   value:boolea[Math.floor(Math.random()*boolea.length)]
-    // })
+      // boolea=[1,0]
+      // res.send({
+      //   error:false,
+      //   value:boolea[Math.floor(Math.random()*boolea.length)]
+      // })
+    })
   })
  
 })
@@ -1096,4 +1146,71 @@ async function getMFBDeduction(month,year,callback){
     return callback(deduction)
   });
 }
+
+
+async function getMFBExposure(empNo,month,year,callback){
+  var options = {
+    'method': 'POST',
+    'url': 'https://cemcsmfb.azurewebsites.net/CEMCSPayrollDeductionsWebService.asmx',
+    'headers': {
+      'Content-Type': 'text/xml',
+      'SOAPAction': 'http://www.cemcsltd.com/webservice/GetMemberMonthlyExposureMFB',       
+      'Cookie': 'ARRAffinity=f443b343d2233fc9ee0e441f7dcd7af8598d6a2b75c2c70f62c51459f276efae; ARRAffinitySameSite=f443b343d2233fc9ee0e441f7dcd7af8598d6a2b75c2c70f62c51459f276efae'
+    },
+    body: `<?xml version="1.0" encoding="utf-8"?>
+              <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Body>    
+                  <GetMemberMonthlyExposureMFB xmlns="http://www.cemcsltd.com/webservice">  
+                    <nEmpNo>${empNo}</nEmpNo>
+                    <payrollMonth>${month}</payrollMonth>
+                    <sYear>${year}</sYear>
+                  </GetMemberMonthlyExposureMFB>
+                </soap:Body>
+              </soap:Envelope>`
+  
+  };
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    xml=response.body;      
+    xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+      if (err) {
+        console.error('Error parsing XML:', err);
+      } else {
+        const value = result['soap:Envelope']['soap:Body'].GetMemberMonthlyExposureMFBResponse.GetMemberMonthlyExposureMFBResult;
+        return callback(parseInt(value))
+      }
+    });
+   
+  });
+
+}
+
+async function getHubExposure(empNo,month,year,callback){
+  var request = require('request');
+  var options = {
+    'method': 'POST',
+    'url': 'https://member.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.get_monthly_exposure',
+    'headers': {
+      'Content-Type': 'application/json',
+      'Authorization': process.env.MEMBER_AUTH
+    },
+    body: JSON.stringify({
+      "empNo": empNo,
+      "month": month,
+      "year": year
+    })
+  
+  };
+  // res.send({
+  //   error: true
+  // });
+  request(options, async function (error, response) {
+    if (error) throw new Error(error);
+    console.log(response.body)
+    result=JSON.parse(response.body).message;
+    return callback(result.value)     
+  });
+
+}
+
 module.exports = router;

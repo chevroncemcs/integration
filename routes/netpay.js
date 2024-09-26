@@ -1149,40 +1149,40 @@ async function getMFBDeduction(month,year,callback){
 
 
 async function getMFBExposure(empNo,month,year,callback){
-  var options = {
-    'method': 'POST',
-    'url': 'https://cemcsmfb.azurewebsites.net/CEMCSPayrollDeductionsWebService.asmx',
-    'headers': {
-      'Content-Type': 'text/xml',
-      'SOAPAction': 'http://www.cemcsltd.com/webservice/GetMemberMonthlyExposureMFB',       
-      'Cookie': 'ARRAffinity=f443b343d2233fc9ee0e441f7dcd7af8598d6a2b75c2c70f62c51459f276efae; ARRAffinitySameSite=f443b343d2233fc9ee0e441f7dcd7af8598d6a2b75c2c70f62c51459f276efae'
-    },
-    body: `<?xml version="1.0" encoding="utf-8"?>
-              <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                <soap:Body>    
-                  <GetMemberMonthlyExposureMFB xmlns="http://www.cemcsltd.com/webservice">  
-                    <nEmpNo>${empNo}</nEmpNo>
-                    <payrollMonth>${month}</payrollMonth>
-                    <sYear>${year}</sYear>
-                  </GetMemberMonthlyExposureMFB>
-                </soap:Body>
-              </soap:Envelope>`
+  // var options = {
+  //   'method': 'POST',
+  //   'url': 'https://cemcsmfb.azurewebsites.net/CEMCSPayrollDeductionsWebService.asmx',
+  //   'headers': {
+  //     'Content-Type': 'text/xml',
+  //     'SOAPAction': 'http://www.cemcsltd.com/webservice/GetMemberMonthlyExposureMFB',       
+  //     'Cookie': 'ARRAffinity=f443b343d2233fc9ee0e441f7dcd7af8598d6a2b75c2c70f62c51459f276efae; ARRAffinitySameSite=f443b343d2233fc9ee0e441f7dcd7af8598d6a2b75c2c70f62c51459f276efae'
+  //   },
+  //   body: `<?xml version="1.0" encoding="utf-8"?>
+  //             <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  //               <soap:Body>    
+  //                 <GetMemberMonthlyExposureMFB xmlns="http://www.cemcsltd.com/webservice">  
+  //                   <nEmpNo>${empNo}</nEmpNo>
+  //                   <payrollMonth>${month}</payrollMonth>
+  //                   <sYear>${year}</sYear>
+  //                 </GetMemberMonthlyExposureMFB>
+  //               </soap:Body>
+  //             </soap:Envelope>`
   
-  };
-  request(options, function (error, response) {
-    if (error) throw new Error(error);
-    xml=response.body;      
-    xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
-      if (err) {
-        console.error('Error parsing XML:', err);
-      } else {
-        const value = result['soap:Envelope']['soap:Body'].GetMemberMonthlyExposureMFBResponse.GetMemberMonthlyExposureMFBResult;
-        return callback(parseInt(value))
-      }
-    });
-   
-  });
-
+  // };
+    // request(options, function (error, response) {
+    //   if (error) throw new Error(error);
+    //   xml=response.body;      
+    //   xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+    //     if (err) {
+    //       console.error('Error parsing XML:', err);
+    //     } else {
+    //       const value = result['soap:Envelope']['soap:Body'].GetMemberMonthlyExposureMFBResponse.GetMemberMonthlyExposureMFBResult;
+    //       return callback(parseInt(value))
+    //     }
+    //   });
+    
+    // });
+    return callback(0)
 }
 
 async function getHubExposure(empNo,month,year,callback){

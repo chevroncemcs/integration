@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-var url=`https://staging-onlinemerchants.suregifts.com/api/voucherredemption`
+// var url=`https://staging-onlinemerchants.suregifts.com/api/voucherredemption`
+var url=`https://onlinemerchants.suregifts.com/api/voucherredemption`
 var request = require('request');
 
 router.get('/balance',async(req,res)=>{  

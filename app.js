@@ -10,6 +10,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var mailRouter=require('./routes/mail');
 var netpayRouter = require('./routes/netpay');
+var suregiftRouter = require('./routes/suregift');
 var databaseRouter = require('./routes/database');
 var payrollSchedule=require('./routes/payrollschedule');
 var flierRouter=require('./routes/flier')
@@ -49,6 +50,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/netpay', netpayRouter);
+app.use('/suregift', suregiftRouter);
 app.use('/database', databaseRouter);
 app.use('/mail', mailRouter);
 app.use('/payrollSchedule',payrollSchedule);

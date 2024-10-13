@@ -764,6 +764,16 @@ async function getEbenefits(month,year,callback){
           product:'STL'              
         })
       }
+      if(memschedule.cp>0){
+        report.push({
+          employee_name:name,
+          employee_number:empno,
+          dba_code:6060,
+          deduct_amount:Math.round(memschedule.cp * 100) / 100,
+          AP_voucher:'Y',
+          product:'CPay'              
+        })
+      }
       if(memschedule.ltl>0){
         report.push({
           employee_name:name,

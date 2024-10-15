@@ -118,7 +118,8 @@ router.post('/getMemberMonthlyExposure',async (req,res)=>{
   
 })
 
-router.post('/uploadMfb',(req,res)=>{
+router.post('/mfb/uploadMfb',(req,res)=>{
+  console.log("here")
   const {month,year,deductions}=req.body
   console.log(req.body);
   var request = require('request');
@@ -721,7 +722,7 @@ async function getEbenefits(month,year,callback){
       else{
         // var deduction=mfbdeduction.data.deduction
         console.log(mfbdeduction.data.deduction)
-        var deduction=Object.keys(mfbdeduction.data.deduction)
+        var deduction=mfbdeduction.data.deduction
       }    
      
 
@@ -892,7 +893,7 @@ async function getEbenefits(month,year,callback){
       }
       
       for (j=0;j<deduction.length;j++){
-        mfbded=mfbdeduction.data.deduction[deduction[j]];
+        mfbded=mfbdeduction.data.deduction[j];
         // console.log(empno)
        //  console.log(mfbded)
         report.push({
@@ -1070,6 +1071,11 @@ async function getEbenefits(month,year,callback){
 
 async function getMFBEbenefits(month,year,callback){
   var request = require('request');
+  var  months=["January", "February", "March", "April", "May", "June", "July", "August", "September","October", "November", "December"]
+  a=typeof month 
+  if(a=="number"){
+    month=months[month-1]
+  }  
   var options = {
     'method': 'POST',
     'url': 'https://member.chevroncemcs.com/api/method/member_experience.api.api.fetch_report',
@@ -1099,13 +1105,13 @@ async function getMFBEbenefits(month,year,callback){
       else{
         // var deduction=mfbdeduction.data.deduction
         console.log(mfbdeduction.data.deduction)
-        var deduction=Object.keys(mfbdeduction.data.deduction)
+        var deduction=mfbdeduction.data.deduction
       }    
      
 
      
       for (j=0;j<deduction.length;j++){
-        mfbded=mfbdeduction.data.deduction[deduction[j]];
+        mfbded=mfbdeduction.data.deduction[j];
         // console.log(empno)
        //  console.log(mfbded)
         report.push({

@@ -95,7 +95,7 @@ $("#mfb-form").submit(async (e)=>{
     $("#table-container").html(`<div class="spinner-border" role="status">
     <span class="sr-only">Loading...</span>
     </div>`);
-    console.log(employee)
+    // console.log(employee)
       month=$("#month").val();
       year=$("#year").val();
       var data=await uploadData(month,year,employee);
@@ -123,6 +123,7 @@ $("#mfb-form").submit(async (e)=>{
 
 
 function uploadData(month,year,employee){
+  console.log("sss")
   var settings = {
       "url": "./uploadMfb",
       "method": "POST",

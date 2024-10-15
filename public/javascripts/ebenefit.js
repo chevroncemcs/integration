@@ -72,7 +72,7 @@ function csv_string_to_table(csv_string, element_to_insert_table) {
 
 function asemRow(rows){
   product=[]
-  for(let i=1;i<rows.length-1;i++){
+  for(let i=1;i<=rows.length-1;i++){
       r=rows[i].split(",");
       product.push({
           employee_name:r[0],

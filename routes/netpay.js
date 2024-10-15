@@ -148,6 +148,36 @@ router.post('/mfb/uploadMfb',(req,res)=>{
 
 })
 
+router.post('/uploadMfb',(req,res)=>{
+  console.log("here")
+  const {month,year,deductions}=req.body
+  console.log(req.body);
+  var request = require('request');
+  var options = {
+    'method': 'POST',
+    'url': 'https://member.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.add_mfb_deduction',
+    'headers': {
+      'Content-Type': 'application/json',
+      'Authorization': process.env.MEMBER_AUTH
+    },
+    body: JSON.stringify({      
+      "month": month,
+      "year": year,
+      "deductions":JSON.parse(deductions)
+    })
+  
+  };
+  // res.send({
+  //   error: true
+  // });
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    console.log(response.body)
+    res.send(JSON.parse(response.body).message);
+  });
+
+})
+
 router.post('/getMonthlyPayrollSchedule',(req,res)=>{
   const {month,year}=req.body
   data=[]

@@ -803,7 +803,7 @@ async function getEbenefits(month,year,callback){
           report.push({
             employee_name:name,
             employee_number:empno,
-            dba_code:6060,
+            dba_code:6055,
             deduct_amount:Math.round(memschedule.cp * 100) / 100,
             AP_voucher:'Y',
             product:'CPay'              
@@ -848,6 +848,16 @@ async function getEbenefits(month,year,callback){
             AP_voucher:'Y',
             product:'EL'             
           })
+        if(memschedule.pl>0){
+          report.push({
+            employee_name:name,
+            employee_number:empno,
+            dba_code:6065,
+            deduct_amount:Math.round(memschedule.pl * 100) / 100,
+            AP_voucher:'Y',
+            product:'PL'             
+          })
+        }
         }
                         
         // for (i=3;i<=14;i++){

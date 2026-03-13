@@ -848,6 +848,7 @@ async function getEbenefits(month,year,callback){
             AP_voucher:'Y',
             product:'EL'             
           })
+        }
         if(memschedule.pl>0){
           report.push({
             employee_name:name,
@@ -857,7 +858,6 @@ async function getEbenefits(month,year,callback){
             AP_voucher:'Y',
             product:'PL'             
           })
-        }
         }
                         
         // for (i=3;i<=14;i++){

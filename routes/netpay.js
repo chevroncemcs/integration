@@ -118,6 +118,31 @@ router.post('/getMemberMonthlyExposure',async (req,res)=>{
   
 })
 
+router.post('/employeeHasTargetExposure',async (req,res)=>{  
+  if(req.header("APIKEY")!=process.env.APIKEY){
+    res.send({
+      error:true,
+      message:"You are not authorized to access this resource!"
+    })
+  }
+  const {empNo,target_type}=req.body;
+
+  if (!(target_type in [1,2,3,4,5])){
+    res.send({
+      error:true,
+      message:"Invalid target type! Valid values are 1,2,3,4,5"
+    })
+  }
+
+  await getTargetExposure(empNo,target_type,(value)=>{
+    res.send({
+      error:false,
+      value:value
+    })
+  })
+  
+})
+
 router.post('/mfb/uploadMfb',(req,res)=>{
   console.log("here")
   const {month,year,deductions}=req.body
@@ -1256,6 +1281,33 @@ async function getHubExposure(empNo,month,year,callback){
       "empNo": empNo,
       "month": month,
       "year": year
+    })
+  
+  };
+  // res.send({
+  //   error: true
+  // });
+  request(options, async function (error, response) {
+    if (error) throw new Error(error);
+    console.log(response.body)
+    result=JSON.parse(response.body).message;
+    return callback(result.value)     
+  });
+
+}
+
+async function getTargetExposure(empNo,target_type,callback){
+  var request = require('request');
+  var options = {
+    'method': 'POST',
+    'url': 'https://member.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.employee_has_target_loan',
+    'headers': {
+      'Content-Type': 'application/json',
+      'Authorization': process.env.MEMBER_AUTH
+    },
+    body: JSON.stringify({
+      "empNo": empNo,
+      "target_type":target_type
     })
   
   };

@@ -125,16 +125,16 @@ router.post('/employeeHasTargetExposure',async (req,res)=>{
       message:"You are not authorized to access this resource!"
     })
   }
-  const {empNo,target_type}=req.body;
+  const {empNo,targetType}=req.body;
 
-  if (!(target_type in [1,2,3,4,5])){
+  if (!(targetType in [1,2,3,4,5])){
     res.send({
       error:true,
       message:"Invalid target type! Valid values are 1,2,3,4,5"
     })
   }
 
-  await getTargetExposure(empNo,target_type,(value)=>{
+  await getTargetExposure(empNo,targetType,(value)=>{
     res.send({
       error:false,
       value:value

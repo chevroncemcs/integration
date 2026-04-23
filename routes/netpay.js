@@ -1,4 +1,5 @@
 var express = require('express');
+const { includes } = require('lodash');
 var router = express.Router();
 var url=`https://apim.chevron.com/public/netpay/v1/`
 var request = require('request');
@@ -126,8 +127,9 @@ router.post('/employeeHasTargetExposure',async (req,res)=>{
     })
   }
   const {empNo,targetType}=req.body;
+  // const targetTypeNum = Number(targetType)
 
-  if (!(targetType in [1,2,3,4,5])){
+  if (!([1,2,3,4,5].includes(targetType))){
     res.send({
       error:true,
       message:"Invalid target type! Valid values are 1,2,3,4,5"

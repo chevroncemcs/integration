@@ -1267,7 +1267,7 @@ async function getMFBExposure(empNo,month,year,callback){
       });
     
     });
-    return callback(0)
+    // return callback(0)
 }
 
 async function getHubExposure(empNo,month,year,callback){

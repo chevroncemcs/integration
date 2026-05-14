@@ -15,6 +15,7 @@ var databaseRouter = require('./routes/database');
 var payrollSchedule=require('./routes/payrollschedule');
 var flierRouter=require('./routes/flier')
 var modalRouter=require('./routes/modal')
+var disbursementRouter = require("./routes/disbursement")
 
 var app = express();
 /* SETTING RESPONSE HEADERS FOR THE SERVER */
@@ -57,6 +58,7 @@ app.use('/mail', mailRouter);
 app.use('/payrollSchedule',payrollSchedule);
 app.use('/flier',flierRouter);
 app.use('/modal',modalRouter)
+app.use('/disbursement', disbursementRouter);
 
 
 

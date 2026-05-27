@@ -7,23 +7,17 @@ const crypto = require('crypto');
 const he = require('he');
 
 
-
-
-// const GTB_PUBLIC_KEY = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArandomexamplekeyhere`;
-
-// const GTB_PUBLIC_KEY = `
-// -----BEGIN PUBLIC KEY-----
-// MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArandomexamplekeyhere
-// -----END PUBLIC KEY-----
-// `;
-
 const USERNAME = "adewotol";
-const PASSWORD = "abcd1234";
+const PASSWORD = "abcd1234*";
 const CHANNEL = "GSTP";
+const ACCESS_CODE = "205140019"
 const today = new Date().toISOString().split('T')[0]
+const accountToDebit = "0004527849"
+const CUSTOMER_ID = "205140019";
+
 
 const ENDPOINT =
-  "https://gtweb6.gtbank.com/GSTPS/GAPS_FileUploader/FileUploader.asmx";
+  "http://gtweb6.gtbank.com/GSTPS/GAPS_FileUploader/FileUploader.asmx";
 
 
 
@@ -41,13 +35,22 @@ const parseXML = (xml) => {
 };
 
 
+
+const GTB_PUBLIC_KEY = `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCrtPgIUBsQscypy+2A2l6oHKlLRTgD4hlrYKW9IrAK4ll0FPndJ3i57CioPalYKdNMF9+K4mFaGfT3dAMRSgWWWDeaerHx35VLgdX/wFTN5Zf1QYGeWiKyAmCAXoPwtlfvlLqsr9NMBJ3Ua+fFqSC4/6ThhudMlrxNL/ut/kd+pQIDAQAB`;
+
+function wrapPublicKey(base64Key) {
+  const cleaned = base64Key.replace(/\s+/g, "");
+  const lines = cleaned.match(/.{1,64}/g).join("\n");
+  return `-----BEGIN PUBLIC KEY-----\n${lines}\n-----END PUBLIC KEY-----`;
+}
+
 function gtbEncrypt(text) {
   const buffer = Buffer.from(String(text), "utf8");
 
   const encrypted = crypto.publicEncrypt(
     {
-      key: GTB_PUBLIC_KEY.trim(),
-      padding: crypto.constants.RSA_PKCS1_PADDING
+      key: wrapPublicKey(GTB_PUBLIC_KEY),
+      padding: crypto.constants.RSA_PKCS1_PADDING,
     },
     buffer
   );
@@ -56,7 +59,7 @@ function gtbEncrypt(text) {
 }
 
 
-// regerence generator
+// regerence generator (to remove later)
 function generateReference(length = 12) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -105,6 +108,42 @@ OxSRxLXJLh4XMyyGd52kbelANJHOyYJcJsh0PXqbL97EZcMHEBkmLOFOsB/UYSb5sbd1EmpX3+1tudel
 }
 
 
+function buildTransactionRequerySOAP(transRef) {
+
+  const xmlString = `&lt;TransactionRequeryRequest&gt;&lt;TransRef&gt;${transRef}&lt;/TransRef&gt;&lt;/TransactionRequeryRequest&gt;`;
+
+  console.log('=== REQUERY (Before Encryption) ===');
+  console.log({ transRef, customerid: accountToDebit });
+
+  const encryptedCustomerId = gtbEncrypt(CUSTOMER_ID);
+
+  console.log('=== REQUERY (After Encryption) ===');
+  console.log({ customerid: encryptedCustomerId });
+
+  return `<?xml version="1.0" encoding="utf-8"?>
+<Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+
+  <Body>
+
+    <TransactionRequery_Enc xmlns="http://tempuri.org/GAPS_Uploader/FileUploader">
+
+      <xmlstring>${xmlString}</xmlstring>
+
+      <customerid>${encryptedCustomerId}</customerid>
+
+      <username>${gtbEncrypt(USERNAME)}</username>
+
+      <password>${gtbEncrypt(PASSWORD)}</password>
+
+      <channel>${CHANNEL}</channel>
+
+    </TransactionRequery_Enc>
+
+  </Body>
+
+</Envelope>`;
+}
+
 function buildTransferSOAP({
   amount,
   remarks,
@@ -116,8 +155,7 @@ function buildTransferSOAP({
   customeracctnumber
 } = {}) {
 
-  // fallback encryption placeholders (replace later with real GTB encryption)
-  const encryptedAmount = amount || "hMnjU9GslMXbMfaR3jE5ZA6Sp1FgW0Qcyf6yjlTBLC1YufpoRNy20PMerKw3I8hw9aid/bRUvJXqi6QDNso5r89Vrp+anB3JM34+ck/1NUpgvRe4IWEv85RQaa3pDK841QMPl7GiRJRE6l3jPfndD8/mjvNU0bfAxvDuP3cNCig=";
+
   const encryptedVendorAcct = vendoracctnumber || "Q3Nkaaol2xfkA59Wit3FqDtfhMkFbq5AJV78Yy4c8jSsvTHi+hl2WDAN3emuaGegqRFnV+SxUx/uVDhZ9D7M+uEOrZNn5Eh0Sr8XYSUrcrG/YVF9hXtSDGZl8+xTfb6ULFYDOKjkVUSJbcSivue/XMD07/0mWCawdhnPDz6TOKs=";
   const encryptedCustomerAcct = customeracctnumber || "DG2pXj+kjPgBiqXPbBrS0TgRsgvKeKc0c6+2IPWF9EElgN9P9W1eA6Ag3cXkOSQqiM1mcLPAO4TivV0jXOzE6HJl7bQaQJYCHCYPpEcBejYB9oepe1I2LIN1H5SZdFGa2TVZsMWFoYJ/R1mIMkPjk2GWtNDWYkxBSOd0cUTx8aw=";
 
@@ -125,27 +163,27 @@ function buildTransferSOAP({
 <transaction>
 
   <amount>
-${encryptedAmount}
+  ${gtbEncrypt(amount)}
   </amount>
 
   <paymentdate>
-${today}
+${he.encode(String(today))}
   </paymentdate>
 
   <reference>
-${reference || generateReference()}
+${he.encode(String(reference))}
   </reference>
 
   <remarks>
-${remarks || "TEST"}
+${he.encode(String(remarks))}
   </remarks>
 
   <vendorcode>
-${vendorcode || "12345"}
+${he.encode(String(vendorcode))}
   </vendorcode>
 
   <vendorname>
-${vendorname || "Nneka"}
+${he.encode(String(vendorname))}
   </vendorname>
 
   <vendoracctnumber>
@@ -153,11 +191,11 @@ ${encryptedVendorAcct}
   </vendoracctnumber>
 
   <vendorbankcode>
-${vendorbankcode || "058"}
+${he.encode(String(vendorbankcode))}
   </vendorbankcode>
 
   <customeracctnumber>
-${encryptedCustomerAcct}
+  ${gtbEncrypt(accountToDebit)}
   </customeracctnumber>
 
 </transaction>
@@ -179,15 +217,15 @@ ${encryptedCustomerAcct}
       ]]></xmlRequest>
 
       <username>
-H9UbBWGh+bEIu+icMl9WOEOIjQoH8o5EfPZaMIi+SAZ+///n9KqqdH6ogqvkFYGwaTYNADbbB8NuUBtdRshuSOzLL+Zs+O/d1RhI7qLhJx9MtEd2U+xRwj4w/pwYe5LjWpA7HhWzC01AZ4Ke4rflASeMD0vHQHwyoj1rtRoSPsk=
+      ${gtbEncrypt(USERNAME)}
       </username>
 
       <accesscode>
-UJWOIoiWnc/evqQeuNCFKIBgeHtN4z96OQuWUuAICUJztRYE5gIMa6LVkIWLA4fc4XqtPO1Z6OXY6h8HAcIGJexbEZ3VZxROfHXO617S4+KFDNBGty3vbc3QR+IwoydB6c6AnZsVzw1BpqbGHZAI2jKHChzsKnvXnGnvzZfjlf0=
+      ${gtbEncrypt(ACCESS_CODE)}
       </accesscode>
 
       <password>
-OxSRxLXJLh4XMyyGd52kbelANJHOyYJcJsh0PXqbL97EZcMHEBkmLOFOsB/UYSb5sbd1EmpX3+1tudelQ6DHnVQK7rtcup+IpzWvtXwYyHDslq+TSBYpbJqdmKhojztd49jpjbK1BYO1SHiy2uWDyx5aNFna2GVWdLLCoFPb+eA=
+      ${gtbEncrypt(PASSWORD)}
       </password>
 
       <channel>${CHANNEL}</channel>
@@ -201,7 +239,7 @@ OxSRxLXJLh4XMyyGd52kbelANJHOyYJcJsh0PXqbL97EZcMHEBkmLOFOsB/UYSb5sbd1EmpX3+1tudel
 
 
 
-function buildBulkTransferSOAP() {
+function buildBulkTransferSOAPTest() {
 
   const transactionsXML = `
 <transactions>
@@ -302,6 +340,116 @@ OxSRxLXJLh4XMyyGd52kbelANJHOyYJcJsh0PXqbL97EZcMHEBkmLOFOsB/UYSb5sbd1EmpX3+1tudel
 </Envelope>`;
 }
 
+function buildBulkTransferSOAP(transactions) {
+
+  console.log('=== CREDENTIALS (Before Encryption) ===');
+  console.log({ USERNAME, ACCESS_CODE, PASSWORD });
+
+  const encryptedUsername   = gtbEncrypt(USERNAME);
+  const encryptedAccessCode = gtbEncrypt(ACCESS_CODE);
+  const encryptedPassword   = gtbEncrypt(PASSWORD);
+
+  console.log('=== CREDENTIALS (After Encryption) ===');
+  console.log({ USERNAME: encryptedUsername, ACCESS_CODE: encryptedAccessCode, PASSWORD: encryptedPassword });
+
+  const encryptedTransactions = transactions.map((t, i) => {
+    const before = {
+      amount:             t.amount,
+      remarks:            t.remarks,
+      vendoracctnumber:   t.vendoracctnumber,
+      customeracctnumber: accountToDebit,
+    };
+
+    const encryptedAmount      = gtbEncrypt(t.amount);
+    const encryptedRemarks     = gtbEncrypt(t.remarks);
+    const encryptedAcctNumber  = gtbEncrypt(t.vendoracctnumber);
+    const encryptedCustomerAcct = gtbEncrypt(accountToDebit);
+
+    const after = {
+      amount:             encryptedAmount,
+      remarks:            encryptedRemarks,
+      vendoracctnumber:   encryptedAcctNumber,
+      customeracctnumber: encryptedCustomerAcct,
+    };
+
+    console.log(`=== TRANSACTION [${i}] (Before Encryption) ===`);
+    console.log(before);
+    console.log(`=== TRANSACTION [${i}] (After Encryption) ===`);
+    console.log(after);
+
+    return {
+      ...t,
+      encryptedAmount,
+      encryptedRemarks,
+      encryptedAcctNumber,
+      encryptedCustomerAcct,
+    };
+  });
+
+  const transactionsXML = `
+<transactions>
+  ${encryptedTransactions.map(t => `
+  <transaction>
+
+    <amount>${t.encryptedAmount}</amount>
+
+    <paymentdate>${today}</paymentdate>
+
+    <reference>${t.reference ||generateReference()}</reference>
+
+    <remarks>${t.remarks}</remarks>
+
+    <vendorcode>${t.vendorcode}</vendorcode>
+
+    <vendorname>${t.vendorname}</vendorname>
+
+    <vendoracctnumber>${t.encryptedAcctNumber}</vendoracctnumber>
+
+    <vendorbankcode>${t.vendorbankcode}</vendorbankcode>
+
+    <customeracctnumber>${gtbEncrypt(accountToDebit)}</customeracctnumber>
+
+  </transaction>
+  `).join('')}
+</transactions>
+`;
+
+  const escapedTransactions = he.encode(transactionsXML);
+
+  return `<?xml version="1.0" encoding="utf-8"?>
+<Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+
+  <Body>
+
+    <BulkTransfers_Enc xmlns="http://tempuri.org/GAPS_Uploader/FileUploader">
+
+      <xmlRequest><![CDATA[
+<BulkTransfers>
+  <transdetails>${escapedTransactions}</transdetails>
+</BulkTransfers>
+      ]]></xmlRequest>
+
+      <username>
+      ${encryptedUsername}
+      </username>
+
+      <accesscode>
+      ${encryptedAccessCode}
+      </accesscode>
+
+      <password>
+      ${encryptedPassword}
+      </password>
+
+      <channel>${CHANNEL}</channel>
+
+    </BulkTransfers_Enc>
+
+  </Body>
+
+</Envelope>`;
+}
+
 router.get('/', function (req, res) {
   res.json({
     message: "Disbursement API running"
@@ -309,6 +457,103 @@ router.get('/', function (req, res) {
 });
 
 
+
+router.post('/get-transaction-status', async function (req, res) {
+
+  try {
+
+    // const { accountNo } = req.body;
+
+    // if (!accountNo) {
+    //   return res.status(400).json({
+    //     error: "accountNo is required"
+    //   });
+    // }
+
+    const soapRequest = buildTransactionRequerySOAP("HBZRTBVEKU1B");
+
+    const options = {
+      url: ENDPOINT,
+      method: "POST",
+      body: soapRequest,
+      headers: {
+        "Content-Type": "text/xml;charset=UTF-8",
+        "SOAPAction":
+          "http://tempuri.org/GAPS_Uploader/FileUploader/TransactionRequery_Enc"
+      }
+    };
+
+    request(options, async (error, response, body) => {
+
+      if (error) {
+        console.error(error);
+
+        return res.status(500).json({
+          success: false,
+          error: "Request failed"
+        });
+      }
+
+      try {
+
+        console.log("RAW BODY:");
+
+        const soap = await parseXML(body);
+
+        console.log(soap);
+        const soapBody = soap["soap:Envelope"]["soap:Body"];
+
+        if (soapBody["soap:Fault"]) {
+          const fault = soapBody["soap:Fault"];
+          console.log("SOAP FAULT:", JSON.stringify(fault, null, 2));
+
+          return res.status(400).json({
+            success: false,
+            faultCode: fault.faultcode,
+            faultMessage: fault.faultstring,
+            detail: fault.detail
+          });
+        }
+
+        const rawResult = soapBody["TransactionRequery_EncResponse"]
+                                  ["TransactionRequery_EncResult"];
+
+        console.log("RAW RESULT:", rawResult);
+
+        const level1 = await parseXML(rawResult);
+
+        console.log("LEVEL1:", JSON.stringify(level1, null, 2));
+
+        const statusMessage = level1.Response.Message;
+
+        return res.json({
+          success: true,
+          responseCode: level1.Response.Code,
+          responseMessage: statusMessage
+        });
+
+       
+      } catch (parseError) {
+
+        console.error(parseError);
+
+        return res.status(500).json({
+          success: false,
+          error: "Failed to parse GTB response"
+        });
+      }
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error"
+    });
+  }
+});
 router.post('/check-balance', async function (req, res) {
 
   try {
@@ -427,8 +672,14 @@ router.post('/single-transfer', async function (req, res) {
       const { amount, vendoracctnumber, customeracctnumber, remarks, vendorcode, vendorname, vendorbankcode, reference } = req.body;
 
   try {
+    if(!amount){
+      return res.status(400).json({
+        success: false,
+        message: 'amount is required'
+      })
+    }
 
-    const soapRequest = buildTransferSOAP({ remarks, vendorcode, vendorname, vendorbankcode, reference });
+    const soapRequest = buildTransferSOAP({ amount, vendoracctnumber, customeracctnumber, remarks, vendorcode, vendorname, vendorbankcode, reference });
 
     const options = {
       url: ENDPOINT,
@@ -509,12 +760,129 @@ router.post('/single-transfer', async function (req, res) {
 ====================================================== */
 
 router.post('/bulk-transfer', async function (req, res) {
+  const { transactions } = req.body;
+  console.log(transactions)
+
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    return res.status(400).json({
+      success: false,
+      error: "transactions must be a non-empty array"
+    });
+  }
+
+    const requiredFields = ['amount', 'vendorcode', 'vendorname', 'vendoracctnumber', 'vendorbankcode', 'remarks'];
+
+  for (let i = 0; i < transactions.length; i++) {
+    const transaction = transactions[i];
+    const missingFields = requiredFields.filter(field => 
+      transaction[field] === undefined || 
+      transaction[field] === null || 
+      transaction[field] === ''
+    );
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: `Transaction at index ${i} is missing required fields: ${missingFields.join(', ')}`
+      });
+    }
+
+    //positive number check
+
+    if (typeof transaction.amount !== 'number' || transaction.amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: `Transaction at index ${i}: 'amount' must be a positive number`
+      });
+    }
+  }
+
+  try {
+
+    const soapRequest = buildBulkTransferSOAP(transactions);
+
+    const options = {
+      url: ENDPOINT,
+      method: "POST",
+      body: soapRequest,
+      headers: {
+        "Content-Type": "text/xml;charset=UTF-8",
+        "SOAPAction":
+          "http://tempuri.org/GAPS_Uploader/FileUploader/BulkTransfers_Enc"
+      }
+    };
+
+    request(options, async (error, response, body) => {
+
+      if (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+          success: false,
+          error: "Bulk transfer request failed"
+        });
+      }
+
+      try {
+
+        console.log("RAW BODY:");
+        console.log(body);
+
+        const soap = await parseXML(body);
+
+        console.log(
+          "SOAP:",
+          JSON.stringify(soap, null, 2)
+        );
+
+        const rawResult =
+          soap["soap:Envelope"]["soap:Body"]
+            ["BulkTransfers_EncResponse"]
+            ["BulkTransfers_EncResult"];
+
+        console.log("RAW RESULT:", rawResult);
+
+        const level1 = await parseXML(rawResult);
+
+        const statusMessage =
+          level1.Response.Message;
+
+        return res.json({
+          success: true,
+          responseCode: level1.Response.Code,
+          responseMessage: statusMessage
+        });
+
+      } catch (parseError) {
+
+        console.error(parseError);
+
+        return res.status(500).json({
+          success: false,
+          error: "Failed to parse bulk transfer response"
+        });
+      }
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error"
+    });
+  }
+});
+
+router.post('/bulk-transfer-test', async function (req, res) {
       const { transactions } = req.body;
 
 
   try {
 
-    const soapRequest = buildBulkTransferSOAP(transactions);
+    const soapRequest = buildBulkTransferSOAPTest(transactions);
 
     const options = {
       url: ENDPOINT,

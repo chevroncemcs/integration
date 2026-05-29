@@ -462,15 +462,15 @@ router.post('/get-transaction-status', async function (req, res) {
 
   try {
 
-    // const { accountNo } = req.body;
+    const { reference } = req.body;
 
-    // if (!accountNo) {
-    //   return res.status(400).json({
-    //     error: "accountNo is required"
-    //   });
-    // }
+    if (!reference) {
+      return res.status(400).json({
+        error: "reference is required"
+      });
+    }
 
-    const soapRequest = buildTransactionRequerySOAP("HBZRTBVEKU1B");
+    const soapRequest = buildTransactionRequerySOAP(reference);
 
     const options = {
       url: ENDPOINT,

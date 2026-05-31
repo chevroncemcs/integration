@@ -370,6 +370,7 @@ function buildBulkTransferSOAP(transactions) {
       remarks:            encryptedRemarks,
       vendoracctnumber:   encryptedAcctNumber,
       customeracctnumber: encryptedCustomerAcct,
+      date: today
     };
 
     console.log(`=== TRANSACTION [${i}] (Before Encryption) ===`);

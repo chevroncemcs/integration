@@ -7,17 +7,16 @@ const crypto = require('crypto');
 const he = require('he');
 
 
-const USERNAME = "adewotol";
-const PASSWORD = "abcd1234*";
-const CHANNEL = "GSTP";
-const ACCESS_CODE = "205140019"
+const USERNAME = process.env.GTB_USERNAME;
+const PASSWORD = process.env.GTB_PASSWORD;
+const ACCESS_CODE = process.env.GTB_ACCESS_CODE;
+const CHANNEL = process.env.GTB_CHANNEL || "CEMCS";
+const CUSTOMER_ID = process.env.GTB_CUSTOMER_ID;
+const accountToDebit = process.env.GTB_ACCOUNT_TO_DEBIT;
+const ENDPOINT = process.env.GTB_ENDPOINT;
+const GTB_PUBLIC_KEY = process.env.GTB_PUBLIC_KEY;
 const today = new Date().toISOString().split('T')[0]
-const accountToDebit = "0004527849"
-const CUSTOMER_ID = "205140019";
 
-
-const ENDPOINT =
-  "http://gtweb6.gtbank.com/GSTPS/GAPS_FileUploader/FileUploader.asmx";
 
 
 
@@ -36,7 +35,6 @@ const parseXML = (xml) => {
 
 
 
-const GTB_PUBLIC_KEY = `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCrtPgIUBsQscypy+2A2l6oHKlLRTgD4hlrYKW9IrAK4ll0FPndJ3i57CioPalYKdNMF9+K4mFaGfT3dAMRSgWWWDeaerHx35VLgdX/wFTN5Zf1QYGeWiKyAmCAXoPwtlfvlLqsr9NMBJ3Ua+fFqSC4/6ThhudMlrxNL/ut/kd+pQIDAQAB`;
 
 function wrapPublicKey(base64Key) {
   const cleaned = base64Key.replace(/\s+/g, "");
@@ -81,25 +79,11 @@ function buildSOAPAccountBalance(accountNo) {
   <soap:Body>
 
     <AccountBalanceRetrieval_Enc xmlns="http://tempuri.org/GAPS_Uploader/FileUploader">
-
-      <accountNo>
-DG2pXj+kjPgBiqXPbBrS0TgRsgvKeKc0c6+2IPWF9EElgN9P9W1eA6Ag3cXkOSQqiM1mcLPAO4TivV0jXOzE6HJl7bQaQJYCHCYPpEcBejYB9oepe1I2LIN1H5SZdFGa2TVZsMWFoYJ/R1mIMkPjk2GWtNDWYkxBSOd0cUTx8aw=
-      </accountNo>
-
-      <accesscode>
-UJWOIoiWnc/evqQeuNCFKIBgeHtN4z96OQuWUuAICUJztRYE5gIMa6LVkIWLA4fc4XqtPO1Z6OXY6h8HAcIGJexbEZ3VZxROfHXO617S4+KFDNBGty3vbc3QR+IwoydB6c6AnZsVzw1BpqbGHZAI2jKHChzsKnvXnGnvzZfjlf0=
-      </accesscode>
-
-      <username>
-H9UbBWGh+bEIu+icMl9WOEOIjQoH8o5EfPZaMIi+SAZ+///n9KqqdH6ogqvkFYGwaTYNADbbB8NuUBtdRshuSOzLL+Zs+O/d1RhI7qLhJx9MtEd2U+xRwj4w/pwYe5LjWpA7HhWzC01AZ4Ke4rflASeMD0vHQHwyoj1rtRoSPsk=
-      </username>
-
-      <password>
-OxSRxLXJLh4XMyyGd52kbelANJHOyYJcJsh0PXqbL97EZcMHEBkmLOFOsB/UYSb5sbd1EmpX3+1tudelQ6DHnVQK7rtcup+IpzWvtXwYyHDslq+TSBYpbJqdmKhojztd49jpjbK1BYO1SHiy2uWDyx5aNFna2GVWdLLCoFPb+eA=
-      </password>
-
+      <accountNo>${gtbEncrypt(accountNo)}</accountNo>
+      <accesscode>${gtbEncrypt(ACCESS_CODE)}</accesscode>
+      <username>${gtbEncrypt(USERNAME)}</username>
+      <password>${gtbEncrypt(PASSWORD)}</password>
       <channel>${CHANNEL}</channel>
-
     </AccountBalanceRetrieval_Enc>
 
   </soap:Body>
@@ -115,7 +99,7 @@ function buildTransactionRequerySOAP(transRef) {
   console.log('=== REQUERY (Before Encryption) ===');
   console.log({ transRef, customerid: accountToDebit });
 
-  const encryptedCustomerId = gtbEncrypt(CUSTOMER_ID);
+  const encryptedCustomerId = gtbEncrypt(ACCESS_CODE);
 
   console.log('=== REQUERY (After Encryption) ===');
   console.log({ customerid: encryptedCustomerId });
@@ -342,9 +326,6 @@ OxSRxLXJLh4XMyyGd52kbelANJHOyYJcJsh0PXqbL97EZcMHEBkmLOFOsB/UYSb5sbd1EmpX3+1tudel
 
 function buildBulkTransferSOAP(transactions) {
 
-  console.log('=== CREDENTIALS (Before Encryption) ===');
-  console.log({ USERNAME, ACCESS_CODE, PASSWORD });
-
   const encryptedUsername   = gtbEncrypt(USERNAME);
   const encryptedAccessCode = gtbEncrypt(ACCESS_CODE);
   const encryptedPassword   = gtbEncrypt(PASSWORD);
@@ -391,25 +372,15 @@ function buildBulkTransferSOAP(transactions) {
 <transactions>
   ${encryptedTransactions.map(t => `
   <transaction>
-
     <amount>${t.encryptedAmount}</amount>
-
     <paymentdate>${today}</paymentdate>
-
     <reference>${t.reference ||generateReference()}</reference>
-
     <remarks>${t.remarks}</remarks>
-
     <vendorcode>${t.vendorcode}</vendorcode>
-
     <vendorname>${t.vendorname}</vendorname>
-
     <vendoracctnumber>${t.encryptedAcctNumber}</vendoracctnumber>
-
     <vendorbankcode>${t.vendorbankcode}</vendorbankcode>
-
-    <customeracctnumber>${gtbEncrypt(accountToDebit)}</customeracctnumber>
-
+    <customeracctnumber>${t.encryptedCustomerAcct}</customeracctnumber>
   </transaction>
   `).join('')}
 </transactions>
@@ -419,35 +390,15 @@ function buildBulkTransferSOAP(transactions) {
 
   return `<?xml version="1.0" encoding="utf-8"?>
 <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
-
   <Body>
-
     <BulkTransfers_Enc xmlns="http://tempuri.org/GAPS_Uploader/FileUploader">
-
-      <xmlRequest><![CDATA[
-<BulkTransfers>
-  <transdetails>${escapedTransactions}</transdetails>
-</BulkTransfers>
-      ]]></xmlRequest>
-
-      <username>
-      ${encryptedUsername}
-      </username>
-
-      <accesscode>
-      ${encryptedAccessCode}
-      </accesscode>
-
-      <password>
-      ${encryptedPassword}
-      </password>
-
+      <xmlRequest><![CDATA[<BulkTransfers><transdetails>${escapedTransactions}</transdetails></BulkTransfers>]]></xmlRequest>
+      <username>${encryptedUsername}</username>
+      <accesscode>${encryptedAccessCode}</accesscode>
+      <password>${encryptedPassword}</password>
       <channel>${CHANNEL}</channel>
-
     </BulkTransfers_Enc>
-
   </Body>
-
 </Envelope>`;
 }
 
@@ -568,6 +519,7 @@ router.post('/check-balance', async function (req, res) {
     }
 
     const soapRequest = buildSOAPAccountBalance(accountNo);
+    console.log("SOAP REQUEST:", soapRequest);
 
     const options = {
       url: ENDPOINT,
@@ -756,9 +708,6 @@ router.post('/single-transfer', async function (req, res) {
   }
 });
 
-/* ======================================================
-   BULK TRANSFER
-====================================================== */
 
 router.post('/bulk-transfer', async function (req, res) {
   const { transactions } = req.body;
@@ -801,6 +750,7 @@ router.post('/bulk-transfer', async function (req, res) {
   try {
 
     const soapRequest = buildBulkTransferSOAP(transactions);
+    console.log("SOAP REQUEST:", soapRequest);
 
     const options = {
       url: ENDPOINT,
@@ -877,6 +827,9 @@ router.post('/bulk-transfer', async function (req, res) {
   }
 });
 
+
+
+// test
 router.post('/bulk-transfer-test', async function (req, res) {
       const { transactions } = req.body;
 

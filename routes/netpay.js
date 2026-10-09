@@ -473,7 +473,7 @@ router.post('/ebenefit',async(req,res)=>{
   var request = require('request');
   var options = {
     'method': 'POST',
-    'url': 'https://retiree.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.get_deductions',
+    'url': 'https://member.chevroncemcs.com/api/method/member_extra.mms_extra.api.api.get_deductions',
     'headers': {
       'Content-Type': 'application/json',
       'Authorization': process.env.MEMBER_AUTH,
@@ -738,7 +738,7 @@ router.get('/mfb/view', async function(req, res, next) {
   if (month !== undefined && year !== undefined){
     await getMFBEbenefits(month, year, (data)=>{
       ebenefit=data.value;      
-      res.render('ebenefits', { title: 'CEMCS - MFB',show:true,month:month,year:year,ebenefit:ebenefit});
+      res.render('mfblist', { title: 'CEMCS - MFB',show:true,month:month,year:year,ebenefit:ebenefit, status: data.docstatus});
     })
   }
   else{
@@ -773,14 +773,18 @@ async function getEbenefits(month,year,callback){
 
     await getMFBDeduction(month,year,(mfbdeduction)=>{
       // console.log(mfbdeduction.deduction.data)
-      if(mfbdeduction.error==true){
-        deduction=[]
+      // if(mfbdeduction.error==true){
+      //   deduction=[]
+      // }
+      // else{
+      //   // var deduction=mfbdeduction.data.deduction
+      //   console.log(mfbdeduction.data.deduction)
+      //   var deduction=mfbdeduction.data.deduction
+      // }    
+       var deduction = []
+      if (!mfbdeduction.error && mfbdeduction.data.docstatus == 1) {
+        deduction = mfbdeduction.data.deduction
       }
-      else{
-        // var deduction=mfbdeduction.data.deduction
-        console.log(mfbdeduction.data.deduction)
-        var deduction=mfbdeduction.data.deduction
-      }    
      
 
       var schedule=JSON.parse(response.body).message.data.deduction
@@ -960,6 +964,7 @@ async function getEbenefits(month,year,callback){
       }
       
       for (j=0;j<deduction.length;j++){
+        if(deduction[j].exclude==0){
         mfbded=mfbdeduction.data.deduction[j];
         // console.log(empno)
        //  console.log(mfbded)
@@ -971,6 +976,7 @@ async function getEbenefits(month,year,callback){
           AP_voucher:'Y',
           product:"MFB"               
         })
+      }
       } 
       
     
@@ -1171,7 +1177,7 @@ async function getMFBEbenefits(month,year,callback){
       }
       else{
         // var deduction=mfbdeduction.data.deduction
-        console.log(mfbdeduction.data.deduction)
+        // console.log(mfbdeduction.data.deduction)
         var deduction=mfbdeduction.data.deduction
       }    
      
@@ -1187,14 +1193,17 @@ async function getMFBEbenefits(month,year,callback){
           dba_code:6040,  //MFB Code
           deduct_amount:mfbded.deduct_amount, //
           AP_voucher:'Y',
-          product:"MFB"               
+          product:"MFB",
+          reason: mfbded.reason,
+          exclude: mfbded.exclude
         })
       } 
       
     
     return callback({
       error:false,
-      value:report
+      value:report,
+      docstatus: mfbdeduction.error ? null : mfbdeduction.data.docstatus
     })
      
     })

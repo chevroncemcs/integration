@@ -38,8 +38,11 @@
     </form>
     <br/>
     <% if (show) { %>
-    <h3><%= month %>, <%=year%></h3>
-    <% } %>
+<h3><%= month %>, <%= year %>
+  <% if (status === 0) { %> — In Review <% } else if (status === 1) { %> — Submitted <% } %>
+</h3>
+<% } %>
+    
     <div class="container-fluid mt-3">     
         <button class="btn btn-primary" onclick="exportToExcel('#template_table')" >Download</button>  
         <table  id="template_table" class="table table-striped rounded">
@@ -49,7 +52,9 @@
                 <th>DBA Code</th>
                 <th>Amount</th>
                 <th>AP Voucher</th>
-                <th>Product</th>               
+                <th>Product</th>         
+                <th>Reason</th>
+                <th>Exclude</th>      
             </thead>
             <tbody class="remove">
                 <% if (show && ebenefit.length>0) { %>
@@ -62,6 +67,8 @@
                             <td><%= item.deduct_amount.toLocaleString() %></td>
                             <td><%= item.AP_voucher %></td>
                             <td><%= item.product %></td>
+                            <td><%= item.reason %></td>
+                            <td><%= item.exclude %></td>
                         </tr>
                     <% } %>
                 <% } %>

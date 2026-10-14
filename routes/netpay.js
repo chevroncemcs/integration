@@ -489,6 +489,7 @@ router.post('/ebenefit',async(req,res)=>{
 
   };
   await getEbenefits(month,year,(result)=>{
+    console.log(result)
     res.send(result);
   });
   // request(options, function (error, response) {
@@ -888,6 +889,16 @@ async function getEbenefits(month,year,callback){
             deduct_amount:Math.round(memschedule.pl * 100) / 100,
             AP_voucher:'Y',
             product:'PL'             
+          })
+        }
+        if(memschedule.al>0){
+          report.push({
+            employee_name:name,
+            employee_number:empno,
+            dba_code:6050,
+            deduct_amount:Math.round(memschedule.al * 100) / 100,
+            AP_voucher:'Y',
+            product:'AL'           
           })
         }
                         

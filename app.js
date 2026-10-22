@@ -16,6 +16,7 @@ var payrollSchedule=require('./routes/payrollschedule');
 var flierRouter=require('./routes/flier')
 var modalRouter=require('./routes/modal')
 var disbursementRouter = require("./routes/disbursement")
+var optimusRouter = require("./routes/optimus")
 
 var app = express();
 /* SETTING RESPONSE HEADERS FOR THE SERVER */
@@ -59,7 +60,7 @@ app.use('/payrollSchedule',payrollSchedule);
 app.use('/flier',flierRouter);
 app.use('/modal',modalRouter)
 app.use('/disbursement', disbursementRouter);
-
+app.use('/optimus', optimusRouter);
 
 
 // catch 404 and forward to error handler

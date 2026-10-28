@@ -505,4 +505,13 @@ router.post('/bulk-transfer', requireApiKey, async function (req, res) {
   }
 });
 
+router.get('/myip', requireApiKey, async (_req, res) => {
+  try {
+    const r = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(10000) });
+    res.json(await r.json());
+  } catch (e) {
+    res.status(502).json({ error: e.message });
+  }
+});
+
 module.exports = router;

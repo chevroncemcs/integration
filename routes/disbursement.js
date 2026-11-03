@@ -439,45 +439,80 @@ router.post('/bulk-transfer', requireApiKey, async function (req, res) {
 
     request(options, async (error, response, body) => {
 
-      if (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-          success: false,
-          error: "Bulk transfer request failed"
-        });
-      }
-
-      try {
-        const soap = await parseXML(body);
-        const rawResult =
-          soap["soap:Envelope"]["soap:Body"]
-            ["BulkTransfers_EncResponse"]
-            ["BulkTransfers_EncResult"];
-
-
-        const level1 = await parseXML(rawResult);
-
-        const statusMessage =
-          level1.Response.Message;
-
-        return res.json({
-          success: true,
-          responseCode: level1.Response.Code,
-          responseMessage: statusMessage
-        });
-
-      } catch (parseError) {
-
-        console.error(parseError);
-
-        return res.status(500).json({
-          success: false,
-          error: "Failed to parse bulk transfer response"
-        });
-      }
+  if (error) {
+    console.error(error);
+    return res.status(502).json({
+      success: false,
+      stage: "network",
+      error: "Could not reach GTB",
+      detail: error.message
     });
+  }
+
+  try {
+    const soap = await parseXML(body);
+    const envelope = soap["soap:Envelope"] || soap["Envelope"];
+    const soapBody = envelope && (envelope["soap:Body"] || envelope["Body"]);
+
+    if (!soapBody) {
+      return res.status(502).json({
+        success: false,
+        stage: "gtb_response",
+        error: "Unexpected response from GTB",
+        httpStatus: response.statusCode,
+        raw: body
+      });
+    }
+
+    // SOAP fault (bad credentials, encryption, malformed XML, etc.)
+    if (soapBody["soap:Fault"]) {
+      const fault = soapBody["soap:Fault"];
+      return res.status(400).json({
+        success: false,
+        stage: "soap_fault",
+        error: fault.faultstring,
+        faultCode: fault.faultcode,
+        detail: fault.detail
+      });
+    }
+
+    const rawResult =
+      soapBody["BulkTransfers_EncResponse"]["BulkTransfers_EncResult"];
+    const level1 = await parseXML(rawResult);
+
+    const code = level1.Response.Code;
+    const message =
+      typeof level1.Response.Message === "string"
+        ? level1.Response.Message
+        : level1.Response.Message?._;
+
+    // GAPS business response
+    if (code !== "1000") {
+      return res.status(400).json({
+        success: false,
+        stage: "gtb_rejected",
+        responseCode: code,
+        error: message
+      });
+    }
+
+    return res.json({
+      success: true,
+      responseCode: code,
+      responseMessage: message
+    });
+
+  } catch (parseError) {
+    console.error(parseError, body);
+    return res.status(502).json({
+      success: false,
+      stage: "parse",
+      error: "Failed to parse bulk transfer response",
+      detail: parseError.message,
+      raw: body
+    });
+  }
+});
 
   } catch (err) {
 

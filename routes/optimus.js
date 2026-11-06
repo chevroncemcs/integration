@@ -63,6 +63,18 @@ function fail(res, status, message, err) {
   return res.status(status).json(body);
 }
 
+function upstreamError(res, r, extra = {}) {
+  const env = r.parsed ? envelope(r.parsed) : {};
+  console.error(`Optimus ${r.status}:`, JSON.stringify(r.parsed ?? r.raw.slice(0, 300)));
+  return res.status(502).json({
+    success: false,
+    status: r.status,
+    responseMessage: env.message || null,
+    detail: EXPOSE_ERRORS ? (env.data ?? r.parsed ?? null) : undefined,
+    ...extra
+  });
+}
+
 /** Every key ID we could possibly decrypt with — primary plus subkeys. */
 function ownKeyIds(key) {
   try {
@@ -213,16 +225,20 @@ async function optimusCall(method, path, payload = null, timeoutMs = 60000) {
   }
 
   const raw = await resp.text();
-  if (!resp.ok) {
-    return { ok: false, status: resp.status, raw };
+
+  let parsed = null;
+  try {
+    const outer = JSON.parse(raw);
+    const inner = pick(outer, 'data', 'Data');
+    parsed = (typeof inner === "string" && inner)
+      ? await decryptPayload(inner)
+      : outer;
+  } catch (e) {
+    console.error(`Optimus ${method} ${path} — body unreadable:`, e.message);
   }
 
-  const outer = JSON.parse(raw);
-  const inner = pick(outer, 'data', 'Data');
-
-  const parsed = (typeof inner === "string" && inner)
-    ? await decryptPayload(inner)
-    : outer;
+  if (!resp.ok) return { ok: false, status: resp.status, raw, parsed };
+  if (!parsed) throw new Error(`Optimus ${method} ${path}: unreadable response`);
 
   return { ok: true, status: resp.status, parsed };
 }
@@ -267,9 +283,7 @@ router.get('/', function (req, res) {
 router.get('/banks', requireApiKey, async function (req, res) {
   try {
     const r = await optimusCall("GET", "/Banks", null, 30000);
-    if (!r.ok) {
-      return res.status(502).json({ success: false, status: r.status, error: r.raw.slice(0, 300) });
-    }
+    if (!r.ok) return upstreamError(res, r);
     return res.json({ success: true, data: envelope(r.parsed).data || [] });
   } catch (err) {
     console.error("Optimus /banks failed:", err);
@@ -281,9 +295,7 @@ router.get('/banks', requireApiKey, async function (req, res) {
 router.get('/initiators', requireApiKey, async function (req, res) {
   try {
     const r = await optimusCall("GET", "/Users/Initiators", null, 30000);
-    if (!r.ok) {
-      return res.status(502).json({ success: false, status: r.status, error: r.raw.slice(0, 300) });
-    }
+    if (!r.ok) return upstreamError(res, r);
 
     let data = envelope(r.parsed).data || [];
     if (typeof data === "string") data = JSON.parse(data);
@@ -308,9 +320,7 @@ router.get('/initiators', requireApiKey, async function (req, res) {
 router.get('/workflows', requireApiKey, async function (req, res) {
   try {
     const r = await optimusCall("GET", "/Workflows", null, 30000);
-    if (!r.ok) {
-      return res.status(502).json({ success: false, status: r.status, error: r.raw.slice(0, 300) });
-    }
+    if (!r.ok) return upstreamError(res, r);
     return res.json({ success: true, data: envelope(r.parsed).data || [] });
   } catch (err) {
     console.error("Optimus /workflows failed:", err);
@@ -327,9 +337,7 @@ router.post('/get-transaction-status', requireApiKey, async function (req, res) 
     }
 
     const r = await optimusCall("GET", `/Transactions/${encodeURIComponent(reference)}`, null, 30000);
-    if (!r.ok) {
-      return res.status(502).json({ success: false, status: r.status, error: r.raw.slice(0, 300) });
-    }
+    if (!r.ok) return upstreamError(res, r);
 
     const env = envelope(r.parsed);
     const d = env.data || {};
@@ -423,14 +431,7 @@ router.post('/bulk-transfer', requireApiKey, async function (req, res) {
   try {
     const r = await optimusCall("POST", "/Transactions", payload);
 
-    if (!r.ok) {
-      return res.status(502).json({
-        success: false,
-        status: r.status,
-        error: r.raw.slice(0, 300),
-        batchReference
-      });
-    }
+    if (!r.ok) return upstreamError(res, r, { batchReference });
 
     const env = envelope(r.parsed);
 

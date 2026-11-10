@@ -441,11 +441,13 @@ router.post('/bulk-transfer', requireApiKey, async function (req, res) {
 
   if (error) {
     console.error(error);
+    console.log(response);
     return res.status(502).json({
       success: false,
       stage: "network",
       error: "Could not reach GTB",
-      detail: error.message
+      detail: error.message,
+      response: response 
     });
   }
 
@@ -488,6 +490,7 @@ router.post('/bulk-transfer', requireApiKey, async function (req, res) {
 
     // GAPS business response
     if (code !== "1000") {
+      console.log("GTB rejected bulk transfer request:", level1, message);
       return res.status(400).json({
         success: false,
         stage: "gtb_rejected",

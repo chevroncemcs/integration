@@ -895,7 +895,7 @@ async function getEbenefits(month,year,callback){
           report.push({
             employee_name:name,
             employee_number:empno,
-            dba_code:6050,
+            dba_code:6075,
             deduct_amount:Math.round(memschedule.al * 100) / 100,
             AP_voucher:'Y',
             product:'AL'           
